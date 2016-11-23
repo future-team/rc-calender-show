@@ -1,4 +1,4 @@
-# Calender events show
+# Calender events show[deprecated]
 A component like iphone calender events show.
 
 ## Usage
