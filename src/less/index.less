@@ -77,7 +77,7 @@
 
 }
 
-.rcs-day, .rcs-year {
+.rcs-day{
     .prev, .next {
         padding-top: .1rem;
         padding-bottom: .1rem;
@@ -102,7 +102,6 @@
 
 .rcs-day {
     position: relative;
-    min-width: 8rem;
     .prev, .next {
         border: 1px solid #ccc;
     }
@@ -125,46 +124,6 @@
     }
 
 }
-
-.rcs-year {
-    display: inline-block;
-    margin: .5rem auto;
-    .content {
-        margin: auto .2rem;
-    }
-    .prev {
-
-    }
-    .next {
-
-    }
-}
-
-.rcs-month {
-    .rcs-month-list {
-        list-style: none;
-        padding-left: 0;
-        margin: 0;
-        .rcs-month-item {
-            float: left;
-            width: 25%;
-            padding: .2rem;
-            text-align: center;
-            box-sizing: border-box;
-            &.active {
-                .rcs-month-content {
-                    border: 1px solid #ccc;
-                }
-            }
-            &:hover {
-                .rcs-month-content {
-                    background: #ccc;
-                }
-            }
-        }
-    }
-}
-
 .rcs-panel {
     .right {
         float: right;
@@ -172,30 +131,5 @@
     }
     .left {
         float: left;
-    }
-    .rcs-select-year-month {
-        &.active {
-            border: 1px solid #ccc;
-        }
-        .down {
-            &:before {
-                content: "\e65e";
-            }
-        }
-        .up {
-            &:before {
-                content: "\e65d";
-            }
-        }
-    }
-    .rcs-select-year-month-panel {
-        position: absolute;
-        right: 0;
-        width: 187px;
-        padding: .5rem;
-        background: #fff;
-        z-index: 10;
-        text-align: center;
-        border: 1px solid #ccc;
     }
 }

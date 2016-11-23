@@ -1,7 +1,4 @@
 import React, {Component, PropTypes} from 'react'
-import CdDay from './CdDay'
-import CdMonth from './CdMonth'
-import CdYear from './CdYear'
 import CdWeek from './CdWeek'
 const loop = function(){}
 export default class CalenderShow extends Component {
@@ -9,18 +6,21 @@ export default class CalenderShow extends Component {
         yearMonthActive: PropTypes.boolean,
         dayChanged: PropTypes.function,
         yearChanged: PropTypes.function,
-        monthChanged: PropTypes.function
+        monthChanged: PropTypes.function,
+        dateChanged: PropTypes.function
     };
     static defaultProps={
-        yearMonthActive: false,
+        activeDate: new Date(),
         dayChanged: loop,
         yearChanged: loop,
-        monthChanged: loop
+        monthChanged: loop,
+        dateChanged: loop
     };
     constructor(props, context) {
         super(props, context)
         this.state = {
             yearMonthActive: props.yearMonthActive,
+            activeDate: props.date,
             year: 2016,
             month: 11,
             days: [1, 2, 3, 4, 5, 6, 7],
@@ -28,14 +28,13 @@ export default class CalenderShow extends Component {
         }
     }
 
-    componentWillMount() {
-    }
+    componentWillMount() {}
 
-    componentDidMount() {
-    }
+    componentDidMount() {}
 
-    componentWillReceiveProps() {
-    }
+    componentWillReceiveProps() {}
+
+    shouldComponentUpdate() {return true}
 
     changeDays(e, days) {
         e && e.preventDefault()
@@ -57,20 +56,28 @@ export default class CalenderShow extends Component {
         })
         this.props.monthChanged(e, month)
     }
-    changeDay(e, day) {
-        e && e.preventDefault()
+    weekDaySelected(day) {
         this.setState({
-            day: day
+            activeDate: day
         })
-        this.props.dayChanged(e, day)
+        this.props.dateChanged(day)
     }
     clickChangeYearMonth() {
         this.setState({
             yearMonthActive: !this.state.yearMonthActive
         })
     }
-    shouldComponentUpdate() {
-        return true
+    nextWeek() {
+        const date = new Date(this.state.activeDate)
+        this.setState({
+            activeDate: new Date(date.setDate(date.getDate()+7))
+        })
+    }
+    prevWeek() {
+        const date = new Date(this.state.activeDate)
+        this.setState({
+            activeDate: new Date(date.setDate(date.getDate()-7))
+        })
     }
     render() {
         const {year, month} = this.state
@@ -79,22 +86,13 @@ export default class CalenderShow extends Component {
             <div className="rcs-panel">
                 <div className="clearfix">
                     <div className="right">
-                        <div className={ 'rcs-select-year-month ' + (this.state.yearMonthActive? 'active': '')}
-                             onClick={::this.clickChangeYearMonth}>{yearMonth}<i className={'rcs-iconfont ' + (this.state.yearMonthActive? 'up': 'down')}/></div>
-                        {
-                            this.state.yearMonthActive && (
-                                <div className="rcs-select-year-month-panel">
-                                    <CdYear year={this.state.year} changeCallback={::this.changeYear}/>
-                                    <CdMonth activeMonth={this.state.month} selectCallback={::this.changeMonth}/>
-                                </div>
-                            )
-                        }
+                        <div className="rcs-day"><i className="rcs-iconfont next"  onClick={::this.nextWeek}/><i className="rcs-iconfont prev"  onClick={::this.prevWeek}/></div>
                     </div>
                     <div className="left">
-                        <CdDay year={this.state.year} month={this.state.month} changeCallback={::this.changeDays}/>
+                        <div className="rcs-select-year-month">{yearMonth}</div>
                     </div>
                 </div>
-                <CdWeek days={this.state.days} activeWeek={this.state.day} selectCallback={::this.changeDay}>
+                <CdWeek activeDate={this.state.activeDate} selectCallback={::this.weekDaySelected}>
                     <p>还没想好要怎么弄</p>
                 </CdWeek>
             </div>

@@ -17,12 +17,12 @@ export default class CalenderDay extends Component {
         this.setWeeks(days)
     }
 
-    componentWillMount() {
-    }
+    componentWillMount() {}
 
-    componentDidMount() {
+    componentDidMount() {}
 
-    }
+    shouldComponentUpdate() {return true}
+
     setWeeks(days) {
         //  构造需要显示的数据
         let weekWrap = [], week = []
@@ -44,9 +44,6 @@ export default class CalenderDay extends Component {
         const days = (new Date(nextProps.year, nextProps.month, 0)).getDate()
         this.setWeeks(days)
     }
-    shouldComponentUpdate() {
-        return true
-    }
     prevWeek(e) {
         // TODO
         if(this.state.weekIndex < 1) return
@@ -65,17 +62,10 @@ export default class CalenderDay extends Component {
         this.props.changeCallback(e, this.state.weeks[this.state.weekIndex] || [])
     }
     render() {
-        const week = this.state.weeks[this.state.weekIndex] || []
-        const start = week[0] || ''
-        const end = week[week.length-1]  || ''
         return (
             <div className="rcs-day">
                 <i className={'rcs-iconfont next ' + (this.state.weekIndex > 3? 'disabled':'')}  onClick={::this.nextWeek}/>
                 <i className={'rcs-iconfont prev ' + (this.state.weekIndex < 1? 'disabled':'')}  onClick={::this.prevWeek}/>
-                <div className="content">
-                    <span className="end">{end}日</span><span className="start">{start}日</span>
-                    <div className="rcs-iconfont split"></div>
-                </div>
             </div>
         )
     }

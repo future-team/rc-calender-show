@@ -18,7 +18,8 @@ class Demo extends Component {
             evt: null,
             year: 2016,
             month: 11,
-            day: 21
+            day: 21,
+            date: new Date()
         }
     }
 
@@ -33,9 +34,8 @@ class Demo extends Component {
     componentWillReceiveProps() {
 
     }
-    dayChanged(evt, day) {
+    dayChanged(day) {
         this.setState({
-            evt: evt,
             day: day
         })
     }
@@ -45,10 +45,9 @@ class Demo extends Component {
             year: year
         })
     }
-    monthChanged(evt, month) {
+    dateChanged(date) {
         this.setState({
-            evt: evt,
-            month: month
+            date: date
         })
     }
     shouldComponentUpdate() {
@@ -57,8 +56,8 @@ class Demo extends Component {
     render() {
         return (
             <div className="rcs-demo">
-                <p>你选择的日期是：{this.state.year},{this.state.month},{this.state.day}</p>
-                <CalenderShow dayChanged={::this.dayChanged} yearChanged={::this.yearChanged} monthChanged={::this.monthChanged}/>
+                <p>你选择的日期是：{this.state.date.getFullYear()},{this.state.date.getMonth()+1},{this.state.date.getDate()}</p>
+                <CalenderShow dayChanged={::this.dayChanged} yearChanged={::this.yearChanged} dateChanged={::this.dateChanged}/>
             </div>
         )
     }

@@ -15,21 +15,13 @@ export default class CalenderYear extends Component {
         }
     }
 
-    componentWillMount() {
+    componentWillMount() {}
 
-    }
+    componentDidMount() {}
 
-    componentDidMount() {
+    componentWillReceiveProps() {}
 
-    }
-
-    componentWillReceiveProps() {
-
-    }
-
-    shouldComponentUpdate () {
-        return true
-    }
+    shouldComponentUpdate () {return true}
 
     prevYear(e) {
         const curYear = this.state.year - 1
