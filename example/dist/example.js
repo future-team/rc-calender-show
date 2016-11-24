@@ -83,7 +83,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _srcIndexJs2 = _interopRequireDefault(_srcIndexJs);
 	
-	__webpack_require__(10);
+	// import CalenderShow from '../../dist/rc-calender-show.js'
+	// import '../../dist/rc-calender-show.css'
+	
+	__webpack_require__(6);
 	
 	var Demo = (function (_Component) {
 	    _inherits(Demo, _Component);
@@ -91,13 +94,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(Demo, null, [{
 	        key: 'propTypes',
 	        value: {
-	            date: _react.PropTypes.string
+	            date: _react.PropTypes.object
 	        },
 	        enumerable: true
 	    }, {
 	        key: 'defaultProps',
 	        value: {
-	            date: '2016-11-21'
+	            date: new Date()
 	        },
 	        enumerable: true
 	    }]);
@@ -107,10 +110,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        _Component.call(this, props, context);
 	        this.state = {
-	            evt: null,
-	            year: 2016,
-	            month: 11,
-	            day: 21
+	            defaultDate: null,
+	            date: null
 	        };
 	    }
 	
@@ -120,24 +121,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    Demo.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
 	
-	    Demo.prototype.dayChanged = function dayChanged(evt, day) {
+	    Demo.prototype.dateChanged = function dateChanged(date) {
 	        this.setState({
-	            evt: evt,
-	            day: day
-	        });
-	    };
-	
-	    Demo.prototype.yearChanged = function yearChanged(evt, year) {
-	        this.setState({
-	            evt: evt,
-	            year: year
-	        });
-	    };
-	
-	    Demo.prototype.monthChanged = function monthChanged(evt, month) {
-	        this.setState({
-	            evt: evt,
-	            month: month
+	            date: date
 	        });
 	    };
 	
@@ -145,21 +131,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return true;
 	    };
 	
+	    Demo.prototype.renderList = function renderList() {
+	        var date = this.state.date;
+	        return date ? _react2['default'].createElement(
+	            'p',
+	            null,
+	            '这个列表渲染呢的时间为',
+	            date.getFullYear(),
+	            ' - ',
+	            date.getMonth() + 1,
+	            ' - ',
+	            date.getDate()
+	        ) : _react2['default'].createElement(
+	            'p',
+	            null,
+	            _react2['default'].createElement(
+	                'strong',
+	                null,
+	                '出错啦！'
+	            )
+	        );
+	    };
+	
 	    Demo.prototype.render = function render() {
+	        var _this = this;
+	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'rcs-demo' },
-	            _react2['default'].createElement(
+	            this.state.date && _react2['default'].createElement(
 	                'p',
 	                null,
 	                '你选择的日期是：',
-	                this.state.year,
+	                this.state.date.getFullYear(),
 	                ',',
-	                this.state.month,
+	                this.state.date.getMonth() + 1,
 	                ',',
-	                this.state.day
+	                this.state.date.getDate()
 	            ),
-	            _react2['default'].createElement(_srcIndexJs2['default'], { dayChanged: this.dayChanged, yearChanged: this.yearChanged, monthChanged: this.monthChanged })
+	            _react2['default'].createElement(
+	                _srcIndexJs2['default'],
+	                { dateChanged: function (date) {
+	                        _this.dateChanged(date);
+	                    }, defaultDate: this.state.defaultDate },
+	                this.renderList()
+	            )
 	        );
 	    };
 	
@@ -200,23 +216,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _CdDay = __webpack_require__(5);
-	
-	var _CdDay2 = _interopRequireDefault(_CdDay);
-	
-	var _CdMonth = __webpack_require__(7);
-	
-	var _CdMonth2 = _interopRequireDefault(_CdMonth);
-	
-	var _CdYear = __webpack_require__(8);
-	
-	var _CdYear2 = _interopRequireDefault(_CdYear);
-	
-	var _CdWeek = __webpack_require__(9);
-	
-	var _CdWeek2 = _interopRequireDefault(_CdWeek);
-	
-	var loop = function loop() {};
+	__webpack_require__(5);
 	
 	var CalenderShow = (function (_Component) {
 	    _inherits(CalenderShow, _Component);
@@ -224,19 +224,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(CalenderShow, null, [{
 	        key: 'propTypes',
 	        value: {
-	            yearMonthActive: _react.PropTypes["boolean"],
-	            dayChanged: _react.PropTypes['function'],
-	            yearChanged: _react.PropTypes['function'],
-	            monthChanged: _react.PropTypes['function']
+	            dateChanged: _react.PropTypes['function'],
+	            defaultDate: _react.PropTypes.object
 	        },
 	        enumerable: true
 	    }, {
 	        key: 'defaultProps',
 	        value: {
-	            yearMonthActive: false,
-	            dayChanged: loop,
-	            yearChanged: loop,
-	            monthChanged: loop
+	            weekStart: 0,
+	            weekLabel: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+	            defaultDate: new Date(),
+	            dateChanged: function dateChanged() {}
 	        },
 	        enumerable: true
 	    }]);
@@ -245,104 +243,201 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, CalenderShow);
 	
 	        _Component.call(this, props, context);
+	        this.screen = window.screen;
 	        this.state = {
-	            yearMonthActive: props.yearMonthActive,
-	            year: 2016,
-	            month: 11,
-	            days: [1, 2, 3, 4, 5, 6, 7],
-	            day: 20
+	            activeDate: props.defaultDate ? props.defaultDate : new Date(),
+	            classPrefix: this.detachEnv()
 	        };
-	
-	        /*this.changeDay = this.changeDay.bind(this)
-	        this.changeDays = this.changeDays.bind(this)
-	        this.changeYear = this.changeYear.bind(this)
-	        this.changeMonth = this.changeMonth.bind(this)*/
+	        this.props.dateChanged(this.state.activeDate);
 	    }
 	
 	    CalenderShow.prototype.componentWillMount = function componentWillMount() {};
 	
 	    CalenderShow.prototype.componentDidMount = function componentDidMount() {};
 	
-	    CalenderShow.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
-	
-	    CalenderShow.prototype.changeDays = function changeDays(e, days) {
-	        e && e.preventDefault();
-	        this.setState({
-	            days: days
-	        });
-	    };
-	
-	    CalenderShow.prototype.changeYear = function changeYear(e, year) {
-	        e && e.preventDefault();
-	        this.setState({
-	            year: year
-	        });
-	        this.props.yearChanged.call(e, year);
-	    };
-	
-	    CalenderShow.prototype.changeMonth = function changeMonth(e, month) {
-	        e && e.preventDefault();
-	        this.setState({
-	            month: month
-	        });
-	        this.props.monthChanged.call(e, month);
-	    };
-	
-	    CalenderShow.prototype.changeDay = function changeDay(e, day) {
-	        e && e.preventDefault();
-	        this.setState({
-	            day: day
-	        });
-	        this.props.dayChanged.call(e, day);
-	    };
-	
-	    CalenderShow.prototype.clickChangeYearMonth = function clickChangeYearMonth() {
-	        this.setState({
-	            yearMonthActive: !this.props.yearMonthActive
-	        });
-	    };
-	
 	    CalenderShow.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
 	        return true;
 	    };
 	
-	    CalenderShow.prototype.render = function render() {
-	        var _state = this.state;
-	        var year = _state.year;
-	        var month = _state.month;
+	    CalenderShow.prototype.componentWillReceiveProps = function componentWillReceiveProps() {}
+	    /*nextProps.defaultDate && this.setState({
+	        activeDate: nextProps.defaultDate
+	    })*/
 	
-	        var yearMonth = year + '-' + month;
+	    /**
+	     * detach env prefix
+	     * @returns {string}
+	     */
+	    ;
+	
+	    CalenderShow.prototype.detachEnv = function detachEnv() {
+	        var classPrefix = 'rcs-pc';
+	        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+	            classPrefix = 'rcs-mobile';
+	        }
+	        return classPrefix;
+	    };
+	
+	    /**
+	     * render current week show
+	     * @returns {Array}
+	     */
+	
+	    CalenderShow.prototype.getWeekDays = function getWeekDays() {
+	        var activeDate = new Date(this.state.activeDate);
+	        var week = activeDate.getDay();
+	        var day = activeDate.getDate();
+	        activeDate.setDate(day - week - 1 + this.props.weekStart);
+	        var days = [1, 2, 3, 4, 5, 6, 7].map(function () {
+	            return new Date(activeDate.setDate(activeDate.getDate() + 1));
+	        });
+	        return days;
+	    };
+	
+	    /**
+	     * set active date and call callback
+	     * @param date
+	     */
+	
+	    CalenderShow.prototype.setActiveDate = function setActiveDate(date) {
+	        this.setState({
+	            activeDate: date
+	        });
+	        this.props.dateChanged(date);
+	    };
+	
+	    /**
+	     * change week range show
+	     * @param flag prev:-1 | next: 1
+	     */
+	
+	    CalenderShow.prototype.changeWeek = function changeWeek(flag) {
+	        var date = new Date(this.state.activeDate);
+	        var newDate = new Date(date.setDate(date.getDate() + flag * 7));
+	        this.setActiveDate(newDate);
+	    };
+	
+	    CalenderShow.prototype.onTouchStartHandler = function onTouchStartHandler(evt) {
+	        var _self = this;
+	        // Test for flick.
+	        this.longTouch = false;
+	        setTimeout(function () {
+	            _self.longTouch = true;
+	        }, 200);
+	        // Get the original touch position.
+	        this.touchstartx = evt.touches[0].pageX;
+	        this.setState({
+	            swipeClass: ''
+	        });
+	    };
+	
+	    // TODO animation
+	
+	    CalenderShow.prototype.onTouchMoveHandler = function onTouchMoveHandler(evt) {
+	        this.touchmovex = evt.touches[0].pageX;
+	        this.movex = this.touchstartx - this.touchmovex;
+	        this.setState({
+	            distance: this.movex
+	        });
+	    };
+	
+	    CalenderShow.prototype.onTouchEndHandler = function onTouchEndHandler(evt) {
+	        var clientWidth = this.screen.width;
+	        var absMove = Math.abs(this.movex);
+	        if (absMove > clientWidth / 4 && this.longTouch === true) {
+	            if (this.movex > 0) {
+	                this.changeWeek(1);
+	            } else {
+	                this.changeWeek(-1);
+	            }
+	            evt.preventDefault();
+	            evt.stopPropagation();
+	        }
+	        this.setState({
+	            distance: absMove, //curIndex * clientWidth,
+	            swipeClass: 'ph-img-slider-animation'
+	        });
+	    };
+	
+	    CalenderShow.prototype.render = function render() {
+	        var _this = this;
+	
+	        var activeDate = this.state.activeDate;
+	
+	        var yearMonth = activeDate.getFullYear() + ' - ' + (activeDate.getMonth() + 1);
+	        var today = new Date().getDate();
+	        var days = this.getWeekDays();
 	        return _react2['default'].createElement(
 	            'div',
-	            { className: 'rcs-panel' },
+	            { className: 'rcs-panel ' + this.state.classPrefix },
 	            _react2['default'].createElement(
 	                'div',
-	                null,
+	                { className: 'clearfix' },
 	                _react2['default'].createElement(
 	                    'div',
 	                    { className: 'right' },
 	                    _react2['default'].createElement(
 	                        'div',
-	                        { onclick: this.clickChangeYearMonth.bind(this) },
-	                        yearMonth,
-	                        _react2['default'].createElement('i', { className:  true ? 'down' : 'up' })
-	                    ),
-	                    this.state.yearMonthActive && _react2['default'].createElement(
-	                        'div',
-	                        null,
-	                        _react2['default'].createElement(_CdYear2['default'], { year: this.state.year, changeCallback: this.changeYear }),
-	                        _react2['default'].createElement(_CdMonth2['default'], { activeMonth: this.state.month, selectCallback: this.changeMonth })
+	                        { className: 'rcs-day' },
+	                        _react2['default'].createElement('i', { className: 'rcs-iconfont next', onClick: function () {
+	                                return _this.changeWeek(1);
+	                            } }),
+	                        _react2['default'].createElement('i', { className: 'rcs-iconfont prev', onClick: function () {
+	                                return _this.changeWeek(-1);
+	                            } })
 	                    )
 	                ),
-	                _react2['default'].createElement(_CdDay2['default'], { year: this.state.year, month: this.state.month, changeCallback: this.changeDays })
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'left' },
+	                    _react2['default'].createElement(
+	                        'div',
+	                        { className: 'rcs-select-year-month' },
+	                        yearMonth
+	                    )
+	                )
 	            ),
 	            _react2['default'].createElement(
-	                _CdWeek2['default'],
-	                { days: this.state.days, activeWeek: this.state.day, selectCallback: this.changeDay },
+	                'div',
+	                { className: 'rcs-week' },
 	                _react2['default'].createElement(
-	                    'p',
-	                    null,
-	                    '还没想好要怎么弄'
+	                    'ul',
+	                    { className: 'clearfix week-list',
+	                        onTouchStart: this.onTouchStartHandler.bind(this),
+	                        onTouchMove: this.onTouchMoveHandler.bind(this),
+	                        onTouchEnd: this.onTouchEndHandler.bind(this)
+	                    },
+	                    days.map(function (item, index) {
+	                        return _react2['default'].createElement(
+	                            'li',
+	                            { key: index, className: 'week-item ' + (_this.state.activeDate.getDay() === item.getDay() ? 'active' : ''), onClick: function () {
+	                                    return _this.setActiveDate(item);
+	                                } },
+	                            _react2['default'].createElement(
+	                                'p',
+	                                { className: 'week-label' },
+	                                today === item.getDate() ? '今日' : _this.props.weekLabel[item.getDay()]
+	                            ),
+	                            _react2['default'].createElement(
+	                                'p',
+	                                { className: 'day-label' },
+	                                _react2['default'].createElement(
+	                                    'i',
+	                                    null,
+	                                    item.getDate()
+	                                )
+	                            )
+	                        );
+	                    })
+	                ),
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'select-day-show' },
+	                    _react2['default'].createElement(
+	                        'div',
+	                        { className: 'select-day-show-content' },
+	                        this.props.children
+	                    )
 	                )
 	            )
 	        );
@@ -356,603 +451,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var _react = __webpack_require__(2);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	__webpack_require__(6);
-	
-	var CalenderDay = (function (_Component) {
-	    _inherits(CalenderDay, _Component);
-	
-	    _createClass(CalenderDay, null, [{
-	        key: 'propTypes',
-	        value: {
-	            year: _react.PropTypes.number,
-	            month: _react.PropTypes.number,
-	            days: _react.PropTypes.number,
-	            changeCallback: _react.PropTypes['function']
-	        },
-	        enumerable: true
-	    }]);
-	
-	    function CalenderDay(props, context) {
-	        _classCallCheck(this, CalenderDay);
-	
-	        _Component.call(this, props, context);
-	        this.state = {
-	            startDay: 1,
-	            endDay: 7
-	        };
-	        this.prevWeek = this.prevWeek.bind(this);
-	        this.nextWeek = this.nextWeek.bind(this);
-	    }
-	
-	    CalenderDay.prototype.componentWillMount = function componentWillMount() {};
-	
-	    CalenderDay.prototype.componentDidMount = function componentDidMount() {};
-	
-	    CalenderDay.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
-	
-	    CalenderDay.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
-	    };
-	
-	    CalenderDay.prototype.prevWeek = function prevWeek(e) {
-	        this.props.changeCallback.call(e, this.state.days);
-	    };
-	
-	    CalenderDay.prototype.nextWeek = function nextWeek(e) {
-	        this.props.changeCallback.call(e, this.state.days);
-	    };
-	
-	    CalenderDay.prototype.render = function render() {
-	        return _react2['default'].createElement(
-	            'div',
-	            { className: 'rcs-day' },
-	            _react2['default'].createElement('i', { className: 'iconfont prev', onClick: this.prevWeek.bind(this) }),
-	            _react2['default'].createElement('i', { className: 'iconfont next', onCLick: this.nextWeek.bind(this) }),
-	            _react2['default'].createElement(
-	                'div',
-	                null,
-	                _react2['default'].createElement(
-	                    'span',
-	                    { className: 'start' },
-	                    this.state.startDay
-	                ),
-	                _react2['default'].createElement(
-	                    'span',
-	                    { className: 'split' },
-	                    '------'
-	                ),
-	                _react2['default'].createElement(
-	                    'span',
-	                    { className: 'end' },
-	                    this.state.endDay
-	                )
-	            )
-	        );
-	    };
-	
-	    return CalenderDay;
-	})(_react.Component);
-	
-	exports['default'] = CalenderDay;
-	module.exports = exports['default'];
-
-/***/ },
-/* 6 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var _react = __webpack_require__(2);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	__webpack_require__(6);
-	
-	var CalenderMonth = (function (_Component) {
-	    _inherits(CalenderMonth, _Component);
-	
-	    _createClass(CalenderMonth, null, [{
-	        key: 'propTypes',
-	        value: {
-	            activeMonth: _react.PropTypes.number,
-	            selectCallback: _react.PropTypes['function']
-	        },
-	        enumerable: true
-	    }]);
-	
-	    function CalenderMonth(props, context) {
-	        _classCallCheck(this, CalenderMonth);
-	
-	        _Component.call(this, props, context);
-	        this.state = {
-	            activeMonth: props.activeMonth
-	        };
-	        this.selectMonth = this.selectMonth.bind(this);
-	    }
-	
-	    CalenderMonth.prototype.componentWillMount = function componentWillMount() {};
-	
-	    CalenderMonth.prototype.componentDidMount = function componentDidMount() {};
-	
-	    CalenderMonth.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
-	
-	    CalenderMonth.prototype.selectMonth = function selectMonth(e) {
-	        this.setState({
-	            activeMonth: 2
-	        });
-	        this.props.selectCallback.call(e, this.state.activeMonth);
-	    };
-	
-	    CalenderMonth.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
-	    };
-	
-	    CalenderMonth.prototype.render = function render() {
-	        return _react2['default'].createElement(
-	            'div',
-	            { className: 'rcs-month' },
-	            _react2['default'].createElement(
-	                'ul',
-	                { onClick: this.selectMonth },
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '1月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '2月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '3月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '4月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'active' },
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '5月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '6月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '7月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '8月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '9月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '10月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '11月'
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    null,
-	                    _react2['default'].createElement(
-	                        'span',
-	                        null,
-	                        '12月'
-	                    )
-	                )
-	            )
-	        );
-	    };
-	
-	    return CalenderMonth;
-	})(_react.Component);
-	
-	exports['default'] = CalenderMonth;
-	module.exports = exports['default'];
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var _react = __webpack_require__(2);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	__webpack_require__(6);
-	
-	var CalenderYear = (function (_Component) {
-	    _inherits(CalenderYear, _Component);
-	
-	    _createClass(CalenderYear, null, [{
-	        key: 'propTypes',
-	        value: {
-	            maxYear: _react.PropTypes.number,
-	            minYear: _react.PropTypes.number,
-	            year: _react.PropTypes.number,
-	            changeCallback: _react.PropTypes['function']
-	        },
-	        enumerable: true
-	    }]);
-	
-	    function CalenderYear(props, context) {
-	        _classCallCheck(this, CalenderYear);
-	
-	        _Component.call(this, props, context);
-	        this.state = {
-	            year: props.year
-	        };
-	        this.prevYear = this.prevYear.bind(this);
-	        this.nextYear = this.nextYear.bind(this);
-	    }
-	
-	    CalenderYear.prototype.componentWillMount = function componentWillMount() {};
-	
-	    CalenderYear.prototype.componentDidMount = function componentDidMount() {};
-	
-	    CalenderYear.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
-	
-	    CalenderYear.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
-	    };
-	
-	    CalenderYear.prototype.prevYear = function prevYear(e) {
-	        var curYear = this.state.year - 1;
-	        if (curYear < this.props.minYear) {
-	            return false;
-	        }
-	        this.setState({
-	            year: curYear
-	        });
-	        this.props.changeCallback.call(e, this.state.year);
-	    };
-	
-	    CalenderYear.prototype.nextYear = function nextYear(e) {
-	        var curYear = this.state.year + 1;
-	        if (curYear > this.props.maxYear) {
-	            return false;
-	        }
-	        this.setState({
-	            year: curYear
-	        });
-	        this.props.changeCallback.call(e, this.state.year);
-	    };
-	
-	    CalenderYear.prototype.render = function render() {
-	        return _react2['default'].createElement(
-	            'div',
-	            { className: 'rcs-year' },
-	            _react2['default'].createElement('i', { className: 'prev', onClick: this.prevYear() }),
-	            _react2['default'].createElement('i', { className: 'next', onCLick: this.nextYear() }),
-	            _react2['default'].createElement(
-	                'span',
-	                null,
-	                this.state.year
-	            )
-	        );
-	    };
-	
-	    return CalenderYear;
-	})(_react.Component);
-	
-	exports['default'] = CalenderYear;
-	module.exports = exports['default'];
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var _react = __webpack_require__(2);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	__webpack_require__(6);
-	
-	var CalenderWeek = (function (_Component) {
-	    _inherits(CalenderWeek, _Component);
-	
-	    _createClass(CalenderWeek, null, [{
-	        key: 'propTypes',
-	        value: {
-	            days: _react.PropTypes.array,
-	            activeWeek: _react.PropTypes.number,
-	            selectCallback: _react.PropTypes.object,
-	            children: _react2['default'].PropTypes.element.isRequired
-	        },
-	        enumerable: true
-	    }]);
-	
-	    function CalenderWeek(props, context) {
-	        _classCallCheck(this, CalenderWeek);
-	
-	        _Component.call(this, props, context);
-	        this.state = {
-	            activeWeek: props.activeWeek
-	        };
-	        this.selectWeekDay = this.selectWeekDay.bind(this);
-	    }
-	
-	    CalenderWeek.prototype.selectWeekDay = function selectWeekDay() {};
-	
-	    CalenderWeek.prototype.componentWillMount = function componentWillMount() {};
-	
-	    CalenderWeek.prototype.componentDidMount = function componentDidMount() {};
-	
-	    CalenderWeek.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
-	
-	    CalenderWeek.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
-	    };
-	
-	    CalenderWeek.prototype.render = function render() {
-	        return _react2['default'].createElement(
-	            'div',
-	            { className: 'rcs-week' },
-	            _react2['default'].createElement(
-	                'ul',
-	                { className: 'clearfix week-list', onClick: this.selectWeekDay },
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item active' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '今日'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '0'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周二'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '3'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周三'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '10'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item active' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周四'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '20'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item active' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周五'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '100'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周六'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '7'
-	                        )
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'li',
-	                    { className: 'week-item' },
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'week-label' },
-	                        '周日'
-	                    ),
-	                    _react2['default'].createElement(
-	                        'p',
-	                        { className: 'events' },
-	                        _react2['default'].createElement(
-	                            'i',
-	                            null,
-	                            '22'
-	                        )
-	                    )
-	                )
-	            ),
-	            _react2['default'].createElement(
-	                'div',
-	                { className: 'select-day-show' },
-	                this.props.children
-	            )
-	        );
-	    };
-	
-	    return CalenderWeek;
-	})(_react.Component);
-	
-	exports['default'] = CalenderWeek;
-	module.exports = exports['default'];
-
-/***/ },
-/* 10 */
+/* 6 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

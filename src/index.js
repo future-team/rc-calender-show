@@ -1,100 +1,161 @@
 import React, {Component, PropTypes} from 'react'
-import CdWeek from './CdWeek'
-const loop = function(){}
+import './less/index.less'
+
 export default class CalenderShow extends Component {
     static propTypes = {
-        yearMonthActive: PropTypes.boolean,
-        dayChanged: PropTypes.function,
-        yearChanged: PropTypes.function,
-        monthChanged: PropTypes.function,
-        dateChanged: PropTypes.function
+        dateChanged: PropTypes.function,
+        defaultDate: PropTypes.object
     };
     static defaultProps={
-        activeDate: new Date(),
-        dayChanged: loop,
-        yearChanged: loop,
-        monthChanged: loop,
-        dateChanged: loop
+        weekStart: 0,
+        weekLabel: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+        defaultDate: new Date(),
+        dateChanged: function(){}
     };
+
     constructor(props, context) {
         super(props, context)
+        this.screen = window.screen
         this.state = {
-            yearMonthActive: props.yearMonthActive,
-            activeDate: props.date,
-            year: 2016,
-            month: 11,
-            days: [1, 2, 3, 4, 5, 6, 7],
-            day: 20
+            activeDate: props.defaultDate ? props.defaultDate : new Date(),
+            classPrefix: this.detachEnv()
         }
+        this.props.dateChanged(this.state.activeDate)
     }
-
     componentWillMount() {}
-
     componentDidMount() {}
-
-    componentWillReceiveProps() {}
-
     shouldComponentUpdate() {return true}
+    componentWillReceiveProps() {
+        /*nextProps.defaultDate && this.setState({
+            activeDate: nextProps.defaultDate
+        })*/
+    }
 
-    changeDays(e, days) {
-        e && e.preventDefault()
-        this.setState({
-            days: days
-        })
+    /**
+     * detach env prefix
+     * @returns {string}
+     */
+    detachEnv(){
+        let classPrefix = 'rcs-pc'
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            classPrefix = 'rcs-mobile'
+        }
+       return classPrefix
     }
-    changeYear(e, year) {
-        e && e.preventDefault()
-        this.setState({
-            year: year
+    /**
+     * render current week show
+     * @returns {Array}
+     */
+    getWeekDays() {
+        const activeDate = new Date(this.state.activeDate)
+        const week = activeDate.getDay()
+        const day = activeDate.getDate()
+        activeDate.setDate(day - week - 1 + this.props.weekStart)
+        const days =  [1,2,3,4,5,6,7].map(()=>{
+            return new Date(activeDate.setDate(activeDate.getDate() + 1))
         })
-        this.props.yearChanged(e, year)
+        return days
     }
-    changeMonth(e, month) {
-        e && e.preventDefault()
+
+    /**
+     * set active date and call callback
+     * @param date
+     */
+    setActiveDate(date) {
         this.setState({
-            month: month
+            activeDate: date
         })
-        this.props.monthChanged(e, month)
+        this.props.dateChanged(date)
     }
-    weekDaySelected(day) {
-        this.setState({
-            activeDate: day
-        })
-        this.props.dateChanged(day)
-    }
-    clickChangeYearMonth() {
-        this.setState({
-            yearMonthActive: !this.state.yearMonthActive
-        })
-    }
-    nextWeek() {
+
+    /**
+     * change week range show
+     * @param flag prev:-1 | next: 1
+     */
+    changeWeek(flag) {
         const date = new Date(this.state.activeDate)
+        const newDate = new Date(date.setDate(date.getDate()+(flag * 7)))
+        this.setActiveDate(newDate)
+    }
+
+    onTouchStartHandler(evt) {
+        const _self = this
+        // Test for flick.
+        this.longTouch = false
+        setTimeout(function() {
+            _self.longTouch = true
+        }, 200)
+        // Get the original touch position.
+        this.touchstartx =  evt.touches[0].pageX
         this.setState({
-            activeDate: new Date(date.setDate(date.getDate()+7))
+            swipeClass: ''
         })
     }
-    prevWeek() {
-        const date = new Date(this.state.activeDate)
+    // TODO animation
+    onTouchMoveHandler(evt) {
+        this.touchmovex =  evt.touches[0].pageX
+        this.movex = this.touchstartx - this.touchmovex
         this.setState({
-            activeDate: new Date(date.setDate(date.getDate()-7))
+            distance: this.movex
         })
     }
+
+    onTouchEndHandler(evt) {
+        const clientWidth = this.screen.width
+        var absMove = Math.abs(this.movex)
+        if (absMove > clientWidth/4 && this.longTouch === true) {
+            if(this.movex > 0) {
+                this.changeWeek(1)
+            } else
+            {
+                this.changeWeek(-1)
+            }
+            evt.preventDefault()
+            evt.stopPropagation()
+        }
+        this.setState({
+            distance: absMove, //curIndex * clientWidth,
+            swipeClass: 'ph-img-slider-animation'
+        })
+    }
+
     render() {
-        const {year, month} = this.state
-        const yearMonth = year + '-' + month
+        const {activeDate} = this.state
+        const yearMonth = activeDate.getFullYear() + ' - ' + (activeDate.getMonth() + 1)
+        const today = (new Date()).getDate()
+        const days = this.getWeekDays()
         return (
-            <div className="rcs-panel">
+            <div className={'rcs-panel '+ this.state.classPrefix}>
                 <div className="clearfix">
                     <div className="right">
-                        <div className="rcs-day"><i className="rcs-iconfont next"  onClick={::this.nextWeek}/><i className="rcs-iconfont prev"  onClick={::this.prevWeek}/></div>
+                        <div className="rcs-day">
+                            <i className="rcs-iconfont next"  onClick={()=>this.changeWeek(1)}/>
+                            <i className="rcs-iconfont prev"  onClick={()=>this.changeWeek(-1)}/>
+                        </div>
                     </div>
                     <div className="left">
                         <div className="rcs-select-year-month">{yearMonth}</div>
                     </div>
                 </div>
-                <CdWeek activeDate={this.state.activeDate} selectCallback={::this.weekDaySelected}>
-                    <p>还没想好要怎么弄</p>
-                </CdWeek>
+                <div className="rcs-week">
+                    <ul className="clearfix week-list"
+                        onTouchStart={::this.onTouchStartHandler}
+                        onTouchMove={::this.onTouchMoveHandler}
+                        onTouchEnd={::this.onTouchEndHandler}
+                    >
+                        {
+                            days.map((item, index)=>(
+                                <li key={index} className={'week-item ' + (this.state.activeDate.getDay() === item.getDay() ? 'active': '')} onClick={()=>this.setActiveDate(item)}>
+                                    <p className="week-label">{ today === item.getDate() ? '今日' : this.props.weekLabel[item.getDay()]}</p>
+                                    <p className="day-label"><i>{item.getDate()}</i></p>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                    <div className="select-day-show">
+                        <div className="select-day-show-content">{this.props.children}</div>
+                    </div>
+                </div>
             </div>
         )
     }

@@ -7,19 +7,16 @@ import '../less/demo.less'
 
 class Demo extends Component {
     static propTypes = {
-        date: PropTypes.string
+        date: PropTypes.object
     };
     static defaultProps={
-        date: '2016-11-21'
+        date: new Date()
     };
     constructor(props, context) {
         super(props, context)
         this.state = {
-            evt: null,
-            year: 2016,
-            month: 11,
-            day: 21,
-            date: new Date()
+            defaultDate: null,
+            date: null
         }
     }
 
@@ -34,17 +31,6 @@ class Demo extends Component {
     componentWillReceiveProps() {
 
     }
-    dayChanged(day) {
-        this.setState({
-            day: day
-        })
-    }
-    yearChanged(evt, year) {
-        this.setState({
-            evt: evt,
-            year: year
-        })
-    }
     dateChanged(date) {
         this.setState({
             date: date
@@ -53,11 +39,19 @@ class Demo extends Component {
     shouldComponentUpdate() {
         return true
     }
+    renderList() {
+        const date = this.state.date
+        return date ? (<p>这个列表渲染呢的时间为{date.getFullYear()} - {date.getMonth()+1} - {date.getDate()}</p>) : (<p><strong>出错啦！</strong></p>)
+    }
     render() {
         return (
             <div className="rcs-demo">
-                <p>你选择的日期是：{this.state.date.getFullYear()},{this.state.date.getMonth()+1},{this.state.date.getDate()}</p>
-                <CalenderShow dayChanged={::this.dayChanged} yearChanged={::this.yearChanged} dateChanged={::this.dateChanged}/>
+                { this.state.date && <p>你选择的日期是：{this.state.date.getFullYear()},{this.state.date.getMonth()+1},{this.state.date.getDate()}</p> }
+                <CalenderShow dateChanged={(date)=>{this.dateChanged(date)}} defaultDate={this.state.defaultDate}>
+                    {
+                        this.renderList()
+                    }
+                </CalenderShow>
             </div>
         )
     }
