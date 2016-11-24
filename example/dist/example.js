@@ -248,12 +248,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            activeDate: props.defaultDate ? props.defaultDate : new Date(),
 	            classPrefix: this.detachEnv()
 	        };
-	        this.props.dateChanged(this.state.activeDate);
 	    }
 	
 	    CalenderShow.prototype.componentWillMount = function componentWillMount() {};
 	
-	    CalenderShow.prototype.componentDidMount = function componentDidMount() {};
+	    CalenderShow.prototype.componentDidMount = function componentDidMount() {
+	        this.props.dateChanged(this.state.activeDate);
+	    };
 	
 	    CalenderShow.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
 	        return true;
@@ -364,7 +365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        var activeDate = this.state.activeDate;
 	
-	        var yearMonth = activeDate.getFullYear() + ' - ' + (activeDate.getMonth() + 1);
+	        var yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月';
 	        var today = new Date().getDate();
 	        var days = this.getWeekDays();
 	        return _react2['default'].createElement(

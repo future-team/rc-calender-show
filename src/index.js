@@ -20,10 +20,11 @@ export default class CalenderShow extends Component {
             activeDate: props.defaultDate ? props.defaultDate : new Date(),
             classPrefix: this.detachEnv()
         }
-        this.props.dateChanged(this.state.activeDate)
     }
     componentWillMount() {}
-    componentDidMount() {}
+    componentDidMount() {
+        this.props.dateChanged(this.state.activeDate)
+    }
     shouldComponentUpdate() {return true}
     componentWillReceiveProps() {
         /*nextProps.defaultDate && this.setState({
@@ -121,7 +122,7 @@ export default class CalenderShow extends Component {
 
     render() {
         const {activeDate} = this.state
-        const yearMonth = activeDate.getFullYear() + ' - ' + (activeDate.getMonth() + 1)
+        const yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月'
         const today = (new Date()).getDate()
         const days = this.getWeekDays()
         return (
