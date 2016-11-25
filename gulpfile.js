@@ -69,8 +69,6 @@ gulp.task('copy',  function(done) {
     del([__dirname+'/dist/example.js'],done)
 })
 
-
 gulp.task('default', ['babel','require-webpack'])
-gulp.task('test',['karma'])
 gulp.task('demo', ['hot','open'])
 gulp.task('min',['min-webpack','copy'])

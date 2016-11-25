@@ -79,14 +79,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _reactLibReactDOM2 = _interopRequireDefault(_reactLibReactDOM);
 	
-	var _srcIndexJs = __webpack_require__(4);
+	// import CalenderShow from '../../src/index.js'
 	
-	var _srcIndexJs2 = _interopRequireDefault(_srcIndexJs);
+	var _rcCalenderShow = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"rc-calender-show\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
-	// import CalenderShow from '../../dist/rc-calender-show.js'
-	// import '../../dist/rc-calender-show.css'
+	var _rcCalenderShow2 = _interopRequireDefault(_rcCalenderShow);
 	
-	__webpack_require__(6);
+	__webpack_require__(4);
 	
 	var Demo = (function (_Component) {
 	    _inherits(Demo, _Component);
@@ -121,14 +120,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    Demo.prototype.componentWillReceiveProps = function componentWillReceiveProps() {};
 	
+	    Demo.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
+	        return true;
+	    };
+	
 	    Demo.prototype.dateChanged = function dateChanged(date) {
 	        this.setState({
 	            date: date
 	        });
 	    };
 	
-	    Demo.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
+	    Demo.prototype.weekChanged = function weekChanged(weekRange) {
+	        this.setMark(weekRange);
 	    };
 	
 	    Demo.prototype.renderList = function renderList() {
@@ -153,12 +156,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	        );
 	    };
 	
+	    Demo.prototype.setMark = function setMark() {
+	        var mark = [{
+	            date: '2016-11-20',
+	            count: 1
+	        }, {
+	            date: '2016-11-23',
+	            count: 100
+	        }, {
+	            date: '2016-11-26',
+	            count: 10
+	        }, {
+	            date: '2016-11-21',
+	            count: 0
+	        }, {
+	            date: '2016-11-22',
+	            count: 0
+	        }];
+	        this.setState({
+	            mark: mark
+	        });
+	    };
+	
 	    Demo.prototype.render = function render() {
 	        var _this = this;
 	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'rcs-demo' },
+	            _react2['default'].createElement(
+	                'p',
+	                null,
+	                _react2['default'].createElement(
+	                    'a',
+	                    { href: 'javascript:;', onClick: this.setMark.bind(this) },
+	                    '设置红点'
+	                )
+	            ),
 	            this.state.date && _react2['default'].createElement(
 	                'p',
 	                null,
@@ -170,10 +204,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.state.date.getDate()
 	            ),
 	            _react2['default'].createElement(
-	                _srcIndexJs2['default'],
+	                _rcCalenderShow2['default'],
 	                { dateChanged: function (date) {
 	                        _this.dateChanged(date);
-	                    }, defaultDate: this.state.defaultDate },
+	                    }, defaultDate: this.state.defaultDate, setMark: this.state.mark, weekChanged: this.weekChanged.bind(this) },
 	                this.renderList()
 	            )
 	        );
@@ -200,267 +234,322 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
-	exports.__esModule = true;
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var _react = __webpack_require__(2);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	__webpack_require__(5);
-	
-	var CalenderShow = (function (_Component) {
-	    _inherits(CalenderShow, _Component);
-	
-	    _createClass(CalenderShow, null, [{
-	        key: 'propTypes',
-	        value: {
-	            dateChanged: _react.PropTypes['function'],
-	            defaultDate: _react.PropTypes.object
-	        },
-	        enumerable: true
-	    }, {
-	        key: 'defaultProps',
-	        value: {
-	            weekStart: 0,
-	            weekLabel: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-	            defaultDate: new Date(),
-	            dateChanged: function dateChanged() {}
-	        },
-	        enumerable: true
-	    }]);
-	
-	    function CalenderShow(props, context) {
-	        _classCallCheck(this, CalenderShow);
-	
-	        _Component.call(this, props, context);
-	        this.screen = window.screen;
-	        this.state = {
-	            activeDate: props.defaultDate ? props.defaultDate : new Date(),
-	            classPrefix: this.detachEnv()
-	        };
-	    }
-	
-	    CalenderShow.prototype.componentWillMount = function componentWillMount() {};
-	
-	    CalenderShow.prototype.componentDidMount = function componentDidMount() {
-	        this.props.dateChanged(this.state.activeDate);
-	    };
-	
-	    CalenderShow.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
-	        return true;
-	    };
-	
-	    CalenderShow.prototype.componentWillReceiveProps = function componentWillReceiveProps() {}
-	    /*nextProps.defaultDate && this.setState({
-	        activeDate: nextProps.defaultDate
-	    })*/
-	
-	    /**
-	     * detach env prefix
-	     * @returns {string}
-	     */
-	    ;
-	
-	    CalenderShow.prototype.detachEnv = function detachEnv() {
-	        var classPrefix = 'rcs-pc';
-	        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-	            classPrefix = 'rcs-mobile';
-	        }
-	        return classPrefix;
-	    };
-	
-	    /**
-	     * render current week show
-	     * @returns {Array}
-	     */
-	
-	    CalenderShow.prototype.getWeekDays = function getWeekDays() {
-	        var activeDate = new Date(this.state.activeDate);
-	        var week = activeDate.getDay();
-	        var day = activeDate.getDate();
-	        activeDate.setDate(day - week - 1 + this.props.weekStart);
-	        var days = [1, 2, 3, 4, 5, 6, 7].map(function () {
-	            return new Date(activeDate.setDate(activeDate.getDate() + 1));
-	        });
-	        return days;
-	    };
-	
-	    /**
-	     * set active date and call callback
-	     * @param date
-	     */
-	
-	    CalenderShow.prototype.setActiveDate = function setActiveDate(date) {
-	        this.setState({
-	            activeDate: date
-	        });
-	        this.props.dateChanged(date);
-	    };
-	
-	    /**
-	     * change week range show
-	     * @param flag prev:-1 | next: 1
-	     */
-	
-	    CalenderShow.prototype.changeWeek = function changeWeek(flag) {
-	        var date = new Date(this.state.activeDate);
-	        var newDate = new Date(date.setDate(date.getDate() + flag * 7));
-	        this.setActiveDate(newDate);
-	    };
-	
-	    CalenderShow.prototype.onTouchStartHandler = function onTouchStartHandler(evt) {
-	        var _self = this;
-	        // Test for flick.
-	        this.longTouch = false;
-	        setTimeout(function () {
-	            _self.longTouch = true;
-	        }, 200);
-	        // Get the original touch position.
-	        this.touchstartx = evt.touches[0].pageX;
-	        this.setState({
-	            swipeClass: ''
-	        });
-	    };
-	
-	    // TODO animation
-	
-	    CalenderShow.prototype.onTouchMoveHandler = function onTouchMoveHandler(evt) {
-	        this.touchmovex = evt.touches[0].pageX;
-	        this.movex = this.touchstartx - this.touchmovex;
-	        this.setState({
-	            distance: this.movex
-	        });
-	    };
-	
-	    CalenderShow.prototype.onTouchEndHandler = function onTouchEndHandler(evt) {
-	        var clientWidth = this.screen.width;
-	        var absMove = Math.abs(this.movex);
-	        if (absMove > clientWidth / 4 && this.longTouch === true) {
-	            if (this.movex > 0) {
-	                this.changeWeek(1);
-	            } else {
-	                this.changeWeek(-1);
-	            }
-	            evt.preventDefault();
-	            evt.stopPropagation();
-	        }
-	        this.setState({
-	            distance: absMove, //curIndex * clientWidth,
-	            swipeClass: 'ph-img-slider-animation'
-	        });
-	    };
-	
-	    CalenderShow.prototype.render = function render() {
-	        var _this = this;
-	
-	        var activeDate = this.state.activeDate;
-	
-	        var yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月';
-	        var today = new Date().getDate();
-	        var days = this.getWeekDays();
-	        return _react2['default'].createElement(
-	            'div',
-	            { className: 'rcs-panel ' + this.state.classPrefix },
-	            _react2['default'].createElement(
-	                'div',
-	                { className: 'clearfix' },
-	                _react2['default'].createElement(
-	                    'div',
-	                    { className: 'right' },
-	                    _react2['default'].createElement(
-	                        'div',
-	                        { className: 'rcs-day' },
-	                        _react2['default'].createElement('i', { className: 'rcs-iconfont next', onClick: function () {
-	                                return _this.changeWeek(1);
-	                            } }),
-	                        _react2['default'].createElement('i', { className: 'rcs-iconfont prev', onClick: function () {
-	                                return _this.changeWeek(-1);
-	                            } })
-	                    )
-	                ),
-	                _react2['default'].createElement(
-	                    'div',
-	                    { className: 'left' },
-	                    _react2['default'].createElement(
-	                        'div',
-	                        { className: 'rcs-select-year-month' },
-	                        yearMonth
-	                    )
-	                )
-	            ),
-	            _react2['default'].createElement(
-	                'div',
-	                { className: 'rcs-week' },
-	                _react2['default'].createElement(
-	                    'ul',
-	                    { className: 'clearfix week-list',
-	                        onTouchStart: this.onTouchStartHandler.bind(this),
-	                        onTouchMove: this.onTouchMoveHandler.bind(this),
-	                        onTouchEnd: this.onTouchEndHandler.bind(this)
-	                    },
-	                    days.map(function (item, index) {
-	                        return _react2['default'].createElement(
-	                            'li',
-	                            { key: index, className: 'week-item ' + (_this.state.activeDate.getDay() === item.getDay() ? 'active' : ''), onClick: function () {
-	                                    return _this.setActiveDate(item);
-	                                } },
-	                            _react2['default'].createElement(
-	                                'p',
-	                                { className: 'week-label' },
-	                                today === item.getDate() ? '今日' : _this.props.weekLabel[item.getDay()]
-	                            ),
-	                            _react2['default'].createElement(
-	                                'p',
-	                                { className: 'day-label' },
-	                                _react2['default'].createElement(
-	                                    'i',
-	                                    null,
-	                                    item.getDate()
-	                                )
-	                            )
-	                        );
-	                    })
-	                ),
-	                _react2['default'].createElement(
-	                    'div',
-	                    { className: 'select-day-show' },
-	                    _react2['default'].createElement(
-	                        'div',
-	                        { className: 'select-day-show-content' },
-	                        this.props.children
-	                    )
-	                )
-	            )
-	        );
-	    };
-	
-	    return CalenderShow;
-	})(_react.Component);
-	
-	exports['default'] = CalenderShow;
-	module.exports = exports['default'];
+	// load the styles
+	var content = __webpack_require__(5);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(7)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/less-loader/index.js!./demo.less", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/less-loader/index.js!./demo.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	// removed by extract-text-webpack-plugin
+	exports = module.exports = __webpack_require__(6)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "", ""]);
+	
+	// exports
+
 
 /***/ },
 /* 6 */
 /***/ function(module, exports) {
 
-	// removed by extract-text-webpack-plugin
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+	
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+	
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0;
+	
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+	
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+	
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+	
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+	
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+	
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+	
+	function createStyleElement() {
+		var styleElement = document.createElement("style");
+		var head = getHeadElement();
+		styleElement.type = "text/css";
+		head.appendChild(styleElement);
+		return styleElement;
+	}
+	
+	function createLinkElement() {
+		var linkElement = document.createElement("link");
+		var head = getHeadElement();
+		linkElement.rel = "stylesheet";
+		head.appendChild(linkElement);
+		return linkElement;
+	}
+	
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+	
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement());
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement();
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement();
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+			};
+		}
+	
+		update(obj);
+	
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+	
+	var replaceText = (function () {
+		var textStore = [];
+	
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+	
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+	
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+	
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+	
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+	
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+	
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+	
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+	
+		var blob = new Blob([css], { type: "text/css" });
+	
+		var oldSrc = linkElement.href;
+	
+		linkElement.href = URL.createObjectURL(blob);
+	
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
 
 /***/ }
 /******/ ])

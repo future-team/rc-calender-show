@@ -22,108 +22,6 @@
 .clearfix:after {
     clear: both;
 }
-.rcs-week {
-    .week-list {
-        list-style: none;
-        padding-left: 0;
-        border-bottom: 1px solid #ccc;
-        .week-item {
-            float: left;
-            width: 14.285%;
-            text-align: center;
-            border: 1px solid transparent;
-            box-sizing: border-box;
-            .week-label {
-                margin-top: .4rem;
-                margin-bottom: .4rem;
-            }
-            .events {
-                position: relative;
-                background: #fff;
-                border-radius: 50%;
-                width: 50%;
-                height: auto;
-                margin: auto auto 3px auto;
-                padding-top: 50%;
-                color: #000;
-                i {
-                    position: absolute;
-                    top: 50%;
-                    left: 0;
-                    margin-top: -6px;
-                    width: 100%;
-                    text-align: center;
-                    font-style: normal;
-                    font-size: 12px;
-                }
-            }
-
-            &.active {
-                border-color: #ccc;
-                border-bottom-color: #fff;
-                margin-bottom: -1px;
-                padding-bottom: 1px;
-                .week-label {
-                    font-weight: bold;
-                }
-                .events {
-                    background: #ff8400;
-                    color: #fff;
-                }
-            }
-
-        }
-    }
-
-}
-
-.rcs-day{
-    .prev, .next {
-        padding-top: .1rem;
-        padding-bottom: .1rem;
-    }
-    .prev, .start {
-        float: left;
-    }
-    .next, .end {
-        float: right;
-    }
-    .prev {
-        &:before {
-            content: "\e660";
-        }
-    }
-    .next {
-        &:before {
-            content: "\e65f";
-        }
-    }
-}
-
-.rcs-day {
-    position: relative;
-    .prev, .next {
-        border: 1px solid #ccc;
-    }
-    .start, .end {
-        font-size: 16px;
-    }
-    .content {
-        padding-left: 1rem;
-        padding-right: 1rem;
-        box-sizing: border-box;
-        .split {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            box-sizing: border-box;
-            text-align: center;
-            &:before {
-                content: "\e608";
-            }
-        }
-    }
-
-}
 .rcs-panel {
     .right {
         float: right;
@@ -131,5 +29,174 @@
     }
     .left {
         float: left;
+    }
+    .rcs-option {
+        padding: 0 5.702%;
+    }
+    .rcs-day {
+        position: relative;
+        .prev, .next {
+            display: inline-block;
+            margin-left: .2rem;
+            margin-right: .2rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid #ececec;
+            background: #fff;
+            box-shadow: 0 0 2px 0 rgba(0,0,0,0.13);
+            line-height: 1.5rem;
+            text-align: center;
+            color: #999;
+            cursor: pointer;
+        }
+        .start, .end {
+            font-size: 16px;
+        }
+        .prev {
+            float: left;
+            &:before {
+                content: "\e660";
+            }
+        }
+        .next {
+            float: right;
+            &:before {
+                content: "\e65f";
+            }
+        }
+    }
+    .rcs-date {
+        font-size: 14px;
+    }
+    .rcs-week {
+        padding: 0 5.702%;
+        .week-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0 -5.702%;
+            border-bottom: 1px solid #ececec;
+            .week-item {
+                float: left;
+                width: 14.285%;
+                text-align: center;
+                border: 1px solid transparent;
+                box-sizing: border-box;
+                .week-label, .day-num, .day-label {
+                }
+                .week-label {
+                    font-size: 12px;
+                }
+                .day-num {
+                    position: relative;
+                    padding-top: 0.5rem;
+                    padding-bottom: 0;
+                    font-size: 14px;
+                    .inner {
+                        position: relative;
+                        background: #fff;
+                        border-radius: 2rem;
+                        width: 2rem;
+                        height: 2rem;
+                        margin: auto;
+                        .num {
+                            position: absolute;
+                            top: 50%;
+                            left: 0;
+                            margin-top: -6px;
+                            width: 100%;
+                            text-align: center;
+                            font-style: normal;
+                            font-size: 12px;
+                        }
+                    }
+                }
+                .day-label {
+                    height: 0.5rem;
+                    position: relative;
+                    &.mark {
+                        &:after {
+                            content: ' ';
+                            position: absolute;
+                            width: 3px;
+                            height: 3px;
+                            border-radius: 3px;
+                            margin-left: -1.5px;
+                            top: 0.25rem;
+                            margin-top: -1.5px;
+                            background-color: #FF6633;
+                        }
+                    }
+                }
+                &.active {
+                    background: #fff;
+                    .week-label {
+                    }
+                    .day-num {
+                        color: #FF6633;
+                        .inner {
+                            background: rgba(255, 102, 51, 0.2);
+                        }
+                    }
+                }
+                &.today {
+
+                }
+            }
+        }
+    }
+}
+.rcs-mobile {
+    .rcs-day {
+        display: none;
+    }
+    .rcs-week {
+        .week-list {
+            margin-top: 15px;
+            padding-bottom: 1.2rem;
+            .week-item {
+                .week-label {
+                    color: #777;
+                }
+                &.active {
+                    .week-label {
+                        font-weight: bold;
+                        color: #FF6633;
+                    }
+                    .day-num {
+
+
+                    }
+                }
+                &.today {
+
+                }
+            }
+        }
+    }
+}
+.rcs-pc {
+    .rcs-week {
+        margin-top: .6rem;
+        .week-list {
+            box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,.1);
+            .week-item {
+                padding-top: .5rem;
+                cursor: pointer;
+                .week-label {
+                    color: #666;
+                }
+                &.active {
+                    border-color: #ececec;
+                    border-bottom-color: #fff;
+                    box-shadow: 0 -2px 6px 0 rgba(0, 0, 0, 0.07), -5px 0 6px -5px rgba(0, 0, 0, 0.07), 6px 0 5px -5px rgba(0, 0, 0, 0.07);
+                    margin-bottom: -1px;
+                    padding-bottom: 1px;
+                }
+                &.today {
+
+                }
+            }
+        }
     }
 }

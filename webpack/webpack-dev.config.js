@@ -8,7 +8,6 @@ var gutil = require('gulp-util')
 module.exports= function(){
     var devPort = 8081
     var wbpk = Object.create(webpackConfig)
-
     wbpk.devtool = 'eval'
     wbpk.entry={index:[path.join(process.cwd(),'example/src/index.js')]}
     wbpk.output.filename = 'example.js'
@@ -25,22 +24,6 @@ module.exports= function(){
     )
 
     wbpk.module.loaders=[
-        /*{
-            test: /\.less$/,
-            loader: 'style-loader!css-loader!less-loader'
-        },
-        {
-            test: /\.svg$/,
-            loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
-        },
-        {
-            test: /\.woff|ttf|woff2|eot$/,
-            loader: 'url?limit=100000'
-        },
-        {
-            test: /\.css$/,
-            loader: 'style!css?-restructuring'
-        }*/
         {
             test: /\.js$/,
             loaders: ['babel'],
