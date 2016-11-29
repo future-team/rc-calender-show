@@ -94,11 +94,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            dateChanged: _react.PropTypes.func,
 	            weekChanged: _react.PropTypes.func,
 	            defaultDate: _react.PropTypes.object,
-	            setMark: _react.PropTypes.shape({
+	            setMark: _react2['default'].PropTypes.arrayOf(_react.PropTypes.shape({
 	                date: _react.PropTypes.string,
 	                count: _react.PropTypes.number,
 	                format: _react.PropTypes['function']
-	            })
+	            }))
 	        },
 	        enumerable: true
 	    }, {
@@ -173,9 +173,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	
 	    CalenderShow.prototype.setActiveDate = function setActiveDate(date) {
+	        var _this = this;
+	
 	        this.setState({
 	            activeDate: date
 	        });
+	        setTimeout(function () {
+	            _this.props.dateChanged(date);
+	        }, 100);
 	    };
 	
 	    /**
@@ -184,13 +189,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	
 	    CalenderShow.prototype.changeWeek = function changeWeek(flag) {
-	        var _this = this;
+	        var _this2 = this;
 	
 	        var date = new Date(this.state.activeDate);
 	        var newDate = new Date(date.setDate(date.getDate() + flag * 7));
 	        this.setActiveDate(newDate);
 	        setTimeout(function () {
-	            _this.props.weekChanged(_this.getWeekRange());
+	            _this2.props.weekChanged(_this2.getWeekRange());
 	        }, 100);
 	    };
 	
@@ -261,7 +266,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	
 	    CalenderShow.prototype.render = function render() {
-	        var _this2 = this;
+	        var _this3 = this;
 	
 	        var activeDate = this.state.activeDate;
 	
@@ -282,10 +287,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        'div',
 	                        { className: 'rcs-day' },
 	                        _react2['default'].createElement('span', { className: 'rcs-iconfont next', onClick: function () {
-	                                return _this2.changeWeek(1);
+	                                return _this3.changeWeek(1);
 	                            } }),
 	                        _react2['default'].createElement('span', { className: 'rcs-iconfont prev', onClick: function () {
-	                                return _this2.changeWeek(-1);
+	                                return _this3.changeWeek(-1);
 	                            } })
 	                    )
 	                ),
@@ -312,13 +317,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    days.map(function (item, index) {
 	                        return _react2['default'].createElement(
 	                            'li',
-	                            { key: index, className: 'week-item' + (_this2.state.activeDate.getDay() === item.date.getDay() ? ' active' : '') + (today === item.date.getDate() ? ' today' : ''), onClick: function () {
-	                                    return _this2.setActiveDate(item.date);
+	                            { key: index, className: 'week-item' + (_this3.state.activeDate.getDay() === item.date.getDay() ? ' active' : '') + (today === item.date.getDate() ? ' today' : ''), onClick: function () {
+	                                    return _this3.setActiveDate(item.date);
 	                                } },
 	                            _react2['default'].createElement(
 	                                'div',
 	                                { className: 'week-label' },
-	                                _this2.state.weekPrefix + _this2.props.weekLabel[item.date.getDay()]
+	                                _this3.state.weekPrefix + _this3.props.weekLabel[item.date.getDay()]
 	                            ),
 	                            _react2['default'].createElement(
 	                                'div',
@@ -329,7 +334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                    _react2['default'].createElement(
 	                                        'div',
 	                                        { className: 'num' },
-	                                        today === item.date.getDate() && _this2.state.isMobile ? '今' : item.date.getDate()
+	                                        today === item.date.getDate() && _this3.state.isMobile ? '今' : item.date.getDate()
 	                                    )
 	                                )
 	                            ),
