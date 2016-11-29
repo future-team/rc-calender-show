@@ -8,11 +8,11 @@ export default class CalenderShow extends Component {
         dateChanged: PropTypes.func,
         weekChanged: PropTypes.func,
         defaultDate: PropTypes.object,
-        setMark: PropTypes.shape({
+        setMark: React.PropTypes.arrayOf(PropTypes.shape({
             date: PropTypes.string,
             count: PropTypes.number,
             format: PropTypes.function
-        })
+        }))
     };
     static defaultProps={
         weekStart: 0,
@@ -74,6 +74,9 @@ export default class CalenderShow extends Component {
         this.setState({
             activeDate: date
         })
+        setTimeout(()=>{
+            this.props.dateChanged(date)
+        }, 100)
     }
 
     /**
