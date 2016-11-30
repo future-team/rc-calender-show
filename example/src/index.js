@@ -60,12 +60,21 @@ class Demo extends Component {
             mark: mark
         })
     }
+    addEvent() {
+        alert('触发了添加计划的事件。')
+    }
     render() {
         return (
             <div className="rcs-demo">
                 <p><a href="javascript:;" onClick={::this.setMark}>设置红点</a></p>
                 { this.state.date && <p>你选择的日期是：{this.state.date.getFullYear()},{this.state.date.getMonth()+1},{this.state.date.getDate()}</p> }
-                <CalenderShow dateChanged={(date)=>{this.dateChanged(date)}} defaultDate={this.state.defaultDate} setMark={this.state.mark} weekChanged={::this.weekChanged}>
+                <CalenderShow
+                    dateChanged={(date)=>{this.dateChanged(date)}}
+                    defaultDate={this.state.defaultDate}
+                    setMark={this.state.mark}
+                    weekChanged={::this.weekChanged}
+                    buttonCallback={::this.addEvent}
+                >
                     {
                         this.renderList()
                     }

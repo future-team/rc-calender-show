@@ -7,6 +7,8 @@ export default class CalenderShow extends Component {
         weekLabel: PropTypes.array,
         dateChanged: PropTypes.func,
         weekChanged: PropTypes.func,
+        buttonTxt: PropTypes.string,
+        buttonCallback: PropTypes.func,
         defaultDate: PropTypes.object,
         setMark: React.PropTypes.arrayOf(PropTypes.shape({
             date: PropTypes.string,
@@ -15,11 +17,13 @@ export default class CalenderShow extends Component {
         }))
     };
     static defaultProps={
+        buttonTxt: '添加计划',
         weekStart: 0,
         weekLabel: ['日', '一', '二', '三', '四', '五', '六'],
         defaultDate: new Date(),
         dateChanged: function(){},
-        weekChanged: function(){}
+        weekChanged: function(){},
+        buttonCallback: function(){}
     };
 
     constructor(props, context) {
@@ -92,6 +96,10 @@ export default class CalenderShow extends Component {
         }, 100)
     }
 
+    addEvent(evt) {
+        const buttonCallback = this.props.buttonCallback
+        Utils.checkType(buttonCallback, 'function') ? buttonCallback.call(null, evt) : false
+    }
     formatDays() {
         let days = this.getWeekDays()
         const {setMark} = this.props
@@ -164,6 +172,9 @@ export default class CalenderShow extends Component {
 
         return (
             <div className={'rcs-panel '+ this.state.classPrefix}>
+                <div className="rcs-button">
+                    <span className="add-event" onClick={::this.addEvent}><i className="rsc-icon"/>{this.props.buttonTxt}</span>
+                </div>
                 <div className="clearfix rcs-option">
                     <div className="right">
                         <div className="rcs-day">
