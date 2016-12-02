@@ -132,12 +132,7 @@
                     background: #fff;
                     .week-label {
                     }
-                    .day-num {
-                        color: #FF6633;
-                        .inner {
-                            background: rgba(255, 102, 51, 0.2);
-                        }
-                    }
+
                 }
                 &.today {
 
@@ -164,8 +159,10 @@
                         color: #FF6633;
                     }
                     .day-num {
-
-
+                        color: #FF6633;
+                        .inner {
+                            background: rgba(255, 102, 51, 0.2);
+                        }
                     }
                 }
                 &.today {
@@ -192,9 +189,15 @@
                     box-shadow: 0 -2px 6px 0 rgba(0, 0, 0, 0.07), -5px 0 6px -5px rgba(0, 0, 0, 0.07), 6px 0 5px -5px rgba(0, 0, 0, 0.07);
                     margin-bottom: -1px;
                     padding-bottom: 1px;
+
                 }
                 &.today {
-
+                    .day-num {
+                        color: #FF6633;
+                        .inner {
+                            background: rgba(255, 102, 51, 0.2);
+                        }
+                    }
                 }
             }
         }

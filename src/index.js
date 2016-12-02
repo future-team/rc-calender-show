@@ -159,7 +159,7 @@ export default class CalenderShow extends Component {
     render() {
         const {activeDate} = this.state
         const yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月'
-        const today = (new Date()).getDate()
+        const today = (new Date()).toLocaleDateString()
         const days = this.formatDays()
 
         return (
@@ -183,9 +183,9 @@ export default class CalenderShow extends Component {
                     >
                         {
                             days.map((item, index)=>(
-                                <li key={index} className={'week-item' + (this.state.activeDate.getDay() === item.date.getDay() ? ' active': '') + (today === item.date.getDate()? ' today':'')} onClick={()=>this.setActiveDate(item.date)}>
+                                <li key={index} className={'week-item' + (this.state.activeDate.getDay() === item.date.getDay() ? ' active': '') + (today === item.date.toLocaleDateString()? ' today':'')} onClick={()=>this.setActiveDate(item.date)}>
                                     <div className="week-label">{this.state.weekPrefix + this.props.weekLabel[item.date.getDay()]}</div>
-                                    <div className="day-num"><div className="inner"><div className="num">{today === item.date.getDate() &&  this.state.isMobile? '今' : item.date.getDate()}</div></div></div>
+                                    <div className="day-num"><div className="inner"><div className="num">{today === item.date.toLocaleDateString() &&  this.state.isMobile? '今' : item.date.getDate()}</div></div></div>
                                     <div className={'day-label ' + (item.mark? 'mark': '')}></div>
                                 </li>
                             ))
