@@ -99,6 +99,7 @@
                         width: 2rem;
                         height: 2rem;
                         margin: auto;
+                        border: 1px solid transparent;
                         .num {
                             position: absolute;
                             top: 50%;
@@ -166,7 +167,15 @@
                     }
                 }
                 &.today {
-
+                    .week-label {
+                        color: #FF6633;
+                    }
+                    .day-num {
+                        color: #FF6633;
+                        .inner {
+                            border-color: #FF6633;
+                        }
+                    }
                 }
             }
         }
