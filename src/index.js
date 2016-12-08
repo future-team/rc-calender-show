@@ -1,6 +1,38 @@
 import React, {Component, PropTypes} from 'react'
 import Utils from './utils'
 import './less/index.less'
+
+// element-closest | CC0-1.0 | github.com/jonathantneal/closest
+(function (ElementProto) {
+    if (typeof ElementProto.matches !== 'function') {
+        ElementProto.matches = ElementProto.msMatchesSelector || ElementProto.mozMatchesSelector || ElementProto.webkitMatchesSelector || function matches(selector) {
+                var element = this
+                var elements = (element.document || element.ownerDocument).querySelectorAll(selector)
+                var index = 0
+
+                while (elements[index] && elements[index] !== element) {
+                    ++index
+                }
+
+                return Boolean(elements[index])
+            }
+    }
+    if (typeof ElementProto.closest !== 'function') {
+        ElementProto.closest = function closest(selector) {
+            var element = this
+
+            while (element && element.nodeType === 1) {
+                if (element.matches(selector)) {
+                    return element
+                }
+
+                element = element.parentNode
+            }
+
+            return null
+        }
+    }
+})(window.Element.prototype)
 export default class CalenderShow extends Component {
     static propTypes = {
         weekStart: PropTypes.number,
@@ -30,7 +62,10 @@ export default class CalenderShow extends Component {
             activeDate: props.defaultDate ? props.defaultDate : new Date(),
             isMobile: isMobile,
             classPrefix: isMobile? 'rcs-mobile' : 'rcs-pc',
-            weekPrefix: isMobile? '' : '周'
+            weekPrefix: isMobile? '' : '周',
+            swipeClass: '',
+            distance: 0,
+            weekFlag: 1
         }
     }
     componentWillMount() {}
@@ -48,8 +83,10 @@ export default class CalenderShow extends Component {
         const activeDate = new Date(this.state.activeDate)
         const week = activeDate.getDay()
         const day = activeDate.getDate()
-        activeDate.setDate(day - week - 1 + this.props.weekStart)
-        const days =  [1,2,3,4,5,6,7].map(()=>{
+        const dis = 8 // this.state.weekFlag > 0 ? 1 : 8
+        activeDate.setDate(day - week - dis + this.props.weekStart)
+        // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+        const days =  [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1].map(()=>{
             return {
                 date: new Date(activeDate.setDate(activeDate.getDate() + 1))
             }
@@ -91,7 +128,6 @@ export default class CalenderShow extends Component {
             this.props.weekChanged(this.getWeekRange())
         }, 100)
     }
-
     formatDays() {
         let days = this.getWeekDays()
         const {setMark} = this.props
@@ -117,53 +153,87 @@ export default class CalenderShow extends Component {
 
     onTouchStartHandler(evt) {
         evt.preventDefault()
-        evt.stopPropagation()
         const _self = this
         // Test for flick.
         this.longTouch = false
         setTimeout(function() {
             _self.longTouch = true
-        }, 200)
+        }, 150)
         // Get the original touch position.
         this.touchstartx =  evt.touches[0].pageX
         this.setState({
-            swipeClass: ''
+            swipeClass: 'rc-calender-show-week-touch-start'
         })
     }
-    // TODO animation
     onTouchMoveHandler(evt) {
         evt.preventDefault()
+        let weekFlag = 1
         this.touchmovex =  evt.touches[0].pageX
         this.movex = this.touchstartx - this.touchmovex
+        if(this.movex > 0){
+            weekFlag = 1
+        } else {
+            weekFlag = -1
+        }
         this.setState({
-            distance: this.movex
+            weekFlag: weekFlag,
+            distance: this.movex,
+            swipeClass: 'rc-calender-show-week-touch-move'
         })
     }
 
     onTouchEndHandler(evt) {
         evt.preventDefault()
         const clientWidth = this.screen.width
-        var absMove = Math.abs(this.movex)
-        if (absMove > clientWidth/6 && this.longTouch === true) {
-            if(this.movex > 0) {
-                this.changeWeek(1)
-            } else
-            {
-                this.changeWeek(-1)
+        const absMove = Math.abs(this.movex)
+        let weekFlag = 1
+        let swipeClass = 'rc-calender-show-week-touch-recover'
+        if(this.longTouch === true) {
+            if (absMove > clientWidth/6) {
+                if(this.movex > 0) {
+                    this.changeWeek(1)
+                    weekFlag = 1
+                    swipeClass = 'rc-calender-show-week-touch-end-left'
+                } else
+                {
+                    this.changeWeek(-1)
+                    weekFlag = -1
+                    swipeClass = 'rc-calender-show-week-touch-end-right'
+                }
+                setTimeout(()=>{
+                    this.setState({
+                        distance: 0,
+                        swipeClass: swipeClass
+                    })
+                },50)
+                this.setState({
+                    distance: this.movex * -1, //curIndex * clientWidth,
+                    weekFlag: weekFlag
+                })
+            }else{
+                this.setState({
+                    distance: 0, //curIndex * clientWidth,
+                    swipeClass: swipeClass
+                })
             }
-            this.setState({
-                distance: absMove, //curIndex * clientWidth,
-                swipeClass: 'ph-img-slider-animation'
-            })
+        }else {
+            // click
+            const clickDate = evt.target.closest('.week-item').dataset.date
+            this.setActiveDate(new Date(clickDate))
         }
     }
-
+    renderStyle(){
+        const distance = this.state.distance * -1
+        let style = {
+            transform: `translateX(${distance}px)`
+        }
+        return style
+    }
     render() {
         const {activeDate} = this.state
         const yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月'
         const today = (new Date()).toLocaleDateString()
         const days = this.formatDays()
-
         return (
             <div className={'rcs-panel '+ this.state.classPrefix}>
                 <div className="clearfix rcs-option">
@@ -178,21 +248,26 @@ export default class CalenderShow extends Component {
                     </div>
                 </div>
                 <div className="rcs-week">
-                    <ul className="clearfix week-list"
-                        onTouchStart={::this.onTouchStartHandler}
-                        onTouchMove={::this.onTouchMoveHandler}
-                        onTouchEnd={::this.onTouchEndHandler}
-                    >
-                        {
-                            days.map((item, index)=>(
-                                <li key={index} className={'week-item' + (this.state.activeDate.getDay() === item.date.getDay() ? ' active': '') + (today === item.date.toLocaleDateString()? ' today':'')} onClick={()=>this.setActiveDate(item.date)}>
-                                    <div className="week-label">{this.state.weekPrefix + this.props.weekLabel[item.date.getDay()]}</div>
-                                    <div className="day-num"><div className="inner"><div className="num">{today === item.date.toLocaleDateString() &&  this.state.isMobile? '今' : item.date.getDate()}</div></div></div>
-                                    <div className={'day-label ' + (item.mark? 'mark': '')}></div>
-                                </li>
-                            ))
-                        }
-                    </ul>
+                    <div className="rsc-week-inner">
+                        <ul className={'clearfix week-list '+ this.state.swipeClass } style={this.renderStyle()}
+                            onTouchStart={::this.onTouchStartHandler}
+                            onTouchMove={::this.onTouchMoveHandler}
+                            onTouchEnd={::this.onTouchEndHandler}
+                        >
+                            {
+                                days.map((item, index)=>(
+                                    <li key={index}
+                                        className={'week-item' + (this.state.activeDate.getDay() === item.date.getDay() ? ' active': '') + (today === item.date.toLocaleDateString()? ' today':'')}
+                                        data-date={item.date}
+                                        onClick={()=>this.setActiveDate(item.date)}>
+                                        <div className="week-label">{this.state.weekPrefix + this.props.weekLabel[item.date.getDay()]}</div>
+                                        <div className="day-num"><div className="inner"><div className="num">{today === item.date.toLocaleDateString() &&  this.state.isMobile? '今' : item.date.getDate()}</div></div></div>
+                                        <div className={'day-label ' + (item.mark? 'mark': '')}></div>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
                 </div>
                 <div className="select-day-show">
                     <div className="select-day-show-content">{this.props.children}</div>
