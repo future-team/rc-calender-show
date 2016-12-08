@@ -116,6 +116,8 @@ export default class CalenderShow extends Component {
     }
 
     onTouchStartHandler(evt) {
+        evt.preventDefault()
+        evt.stopPropagation()
         const _self = this
         // Test for flick.
         this.longTouch = false
@@ -130,6 +132,7 @@ export default class CalenderShow extends Component {
     }
     // TODO animation
     onTouchMoveHandler(evt) {
+        evt.preventDefault()
         this.touchmovex =  evt.touches[0].pageX
         this.movex = this.touchstartx - this.touchmovex
         this.setState({
@@ -138,22 +141,21 @@ export default class CalenderShow extends Component {
     }
 
     onTouchEndHandler(evt) {
+        evt.preventDefault()
         const clientWidth = this.screen.width
         var absMove = Math.abs(this.movex)
-        if (absMove > clientWidth/4 && this.longTouch === true) {
+        if (absMove > clientWidth/6 && this.longTouch === true) {
             if(this.movex > 0) {
                 this.changeWeek(1)
             } else
             {
                 this.changeWeek(-1)
             }
-            evt.preventDefault()
-            evt.stopPropagation()
+            this.setState({
+                distance: absMove, //curIndex * clientWidth,
+                swipeClass: 'ph-img-slider-animation'
+            })
         }
-        this.setState({
-            distance: absMove, //curIndex * clientWidth,
-            swipeClass: 'ph-img-slider-animation'
-        })
     }
 
     render() {
