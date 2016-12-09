@@ -36,23 +36,23 @@ class Demo extends Component {
     setMark() {
         const mark = [
             {
-                date: '2016-11-20',
+                date: '2016-12-6',
                 count: 1
             },
             {
-                date: '2016-11-23',
+                date: '2016-12-7',
                 count: 100
             },
             {
-                date: '2016-11-26',
+                date: '2016-12-8',
                 count: 10
             },
             {
-                date: '2016-11-21',
+                date: '2016-12-9',
                 count: 0
             },
             {
-                date: '2016-11-22',
+                date: '2016-12-10',
                 count: 0
             }
         ]

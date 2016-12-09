@@ -6,6 +6,10 @@
     url('../iconfont/iconfont.ttf') format('truetype'),
     url('../iconfont/iconfont.svg#iconfont') format('svg');
 }
+html {
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+}
 .rcs-iconfont {
     font-family:"iconfont" !important;
     font-size:16px;
@@ -192,10 +196,14 @@
                 }
             }
             &.rc-calender-show-week-touch-end-right {
-                transition: 500ms ease-in;
+                margin-left: 0;
+                padding-right: 0;
+                transition: padding-right 500ms ease-out, margin-left 500ms ease-out;
             }
             &.rc-calender-show-week-touch-end-left {
-                transition: 500ms ease-out;
+                margin-left: -200%;
+                padding-right: 200%;
+                transition: margin-left 500ms ease-out, padding-right 500ms ease-out;
             }
         }
     }
