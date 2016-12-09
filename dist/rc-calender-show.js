@@ -83,6 +83,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	__webpack_require__(4);
 	
+	// element-closest | CC0-1.0 | github.com/jonathantneal/closest
+	(function (ElementProto) {
+	    if (typeof ElementProto.matches !== 'function') {
+	        ElementProto.matches = ElementProto.msMatchesSelector || ElementProto.mozMatchesSelector || ElementProto.webkitMatchesSelector || function matches(selector) {
+	            var element = this;
+	            var elements = (element.document || element.ownerDocument).querySelectorAll(selector);
+	            var index = 0;
+	
+	            while (elements[index] && elements[index] !== element) {
+	                ++index;
+	            }
+	
+	            return Boolean(elements[index]);
+	        };
+	    }
+	    if (typeof ElementProto.closest !== 'function') {
+	        ElementProto.closest = function closest(selector) {
+	            var element = this;
+	
+	            while (element && element.nodeType === 1) {
+	                if (element.matches(selector)) {
+	                    return element;
+	                }
+	
+	                element = element.parentNode;
+	            }
+	
+	            return null;
+	        };
+	    }
+	})(window.Element.prototype);
+	
 	var CalenderShow = (function (_Component) {
 	    _inherits(CalenderShow, _Component);
 	
@@ -123,7 +155,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            activeDate: props.defaultDate ? props.defaultDate : new Date(),
 	            isMobile: isMobile,
 	            classPrefix: isMobile ? 'rcs-mobile' : 'rcs-pc',
-	            weekPrefix: isMobile ? '' : '周'
+	            weekPrefix: isMobile ? '' : '周',
+	            swipeClass: '',
+	            distance: 0
 	        };
 	    }
 	
@@ -149,8 +183,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var activeDate = new Date(this.state.activeDate);
 	        var week = activeDate.getDay();
 	        var day = activeDate.getDate();
-	        activeDate.setDate(day - week - 1 + this.props.weekStart);
-	        var days = [1, 2, 3, 4, 5, 6, 7].map(function () {
+	        var dis = 8;
+	        activeDate.setDate(day - week - dis + this.props.weekStart);
+	        // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+	        var days = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1].map(function () {
 	            return {
 	                date: new Date(activeDate.setDate(activeDate.getDate() + 1))
 	            };
@@ -207,7 +243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            days = days.map(function (item) {
 	                var date = item.date.toLocaleDateString();
 	                var find = setMark.filter(function (obj) {
-	                    return new Date(obj.date).toLocaleDateString() === date;
+	                    return new Date(obj.date.replace(/-/gi, '/')).toLocaleDateString() == date;
 	                })[0];
 	                if (find) {
 	                    item.mark = !!find.count;
@@ -224,8 +260,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	
 	    CalenderShow.prototype.onTouchStartHandler = function onTouchStartHandler(evt) {
+	        evt.stopPropagation();
+	        evt.preventDefault();
 	        var _self = this;
-	        // Test for flick.
 	        this.longTouch = false;
 	        setTimeout(function () {
 	            _self.longTouch = true;
@@ -233,47 +270,75 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Get the original touch position.
 	        this.touchstartx = evt.touches[0].pageX;
 	        this.setState({
-	            swipeClass: ''
+	            swipeClass: 'rc-calender-show-week-touch-start'
 	        });
 	    };
 	
-	    // TODO animation
-	
 	    CalenderShow.prototype.onTouchMoveHandler = function onTouchMoveHandler(evt) {
+	        evt.stopPropagation();
+	        evt.preventDefault();
 	        this.touchmovex = evt.touches[0].pageX;
 	        this.movex = this.touchstartx - this.touchmovex;
 	        this.setState({
-	            distance: this.movex
+	            distance: this.movex,
+	            swipeClass: 'rc-calender-show-week-touch-move'
 	        });
 	    };
 	
 	    CalenderShow.prototype.onTouchEndHandler = function onTouchEndHandler(evt) {
+	        var _this3 = this;
+	
+	        evt.stopPropagation();
+	        evt.preventDefault();
 	        var clientWidth = this.screen.width;
 	        var absMove = Math.abs(this.movex);
-	        if (absMove > clientWidth / 4 && this.longTouch === true) {
-	            if (this.movex > 0) {
-	                this.changeWeek(1);
-	            } else {
-	                this.changeWeek(-1);
+	        var swipeClass = 'rc-calender-show-week-touch-recover';
+	        if (this.longTouch === true) {
+	            if (absMove > clientWidth / 6) {
+	                if (this.movex > 0) {
+	                    this.changeWeek(1);
+	                    swipeClass = 'rc-calender-show-week-touch-end-left';
+	                } else {
+	                    this.changeWeek(-1);
+	                    swipeClass = 'rc-calender-show-week-touch-end-right';
+	                }
+	                setTimeout(function () {
+	                    _this3.setState({
+	                        swipeClass: ''
+	                    });
+	                }, 500);
 	            }
-	            evt.preventDefault();
-	            evt.stopPropagation();
+	        } else {
+	            // click
+	            var clickDate = evt.target.closest('.week-item').dataset.date;
+	            this.setActiveDate(new Date(clickDate));
 	        }
 	        this.setState({
-	            distance: absMove, //curIndex * clientWidth,
-	            swipeClass: 'ph-img-slider-animation'
+	            distance: 0,
+	            swipeClass: swipeClass
 	        });
 	    };
 	
+	    CalenderShow.prototype.renderStyle = function renderStyle() {
+	        var distance = this.state.distance * -1;
+	        var translate = 'translate(' + distance + 'px, 0)';
+	        return {
+	            WebkitTransform: translate,
+	            MozTransform: translate,
+	            msTransform: translate,
+	            OTransform: translate,
+	            transform: translate
+	        };
+	    };
+	
 	    CalenderShow.prototype.render = function render() {
-	        var _this3 = this;
+	        var _this4 = this;
 	
 	        var activeDate = this.state.activeDate;
 	
 	        var yearMonth = activeDate.getFullYear() + '年' + (activeDate.getMonth() + 1) + '月';
 	        var today = new Date().toLocaleDateString();
 	        var days = this.formatDays();
-	
 	        return _react2['default'].createElement(
 	            'div',
 	            { className: 'rcs-panel ' + this.state.classPrefix },
@@ -287,10 +352,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        'div',
 	                        { className: 'rcs-day' },
 	                        _react2['default'].createElement('span', { className: 'rcs-iconfont next', onClick: function () {
-	                                return _this3.changeWeek(1);
+	                                return _this4.changeWeek(1);
 	                            } }),
 	                        _react2['default'].createElement('span', { className: 'rcs-iconfont prev', onClick: function () {
-	                                return _this3.changeWeek(-1);
+	                                return _this4.changeWeek(-1);
 	                            } })
 	                    )
 	                ),
@@ -308,39 +373,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	                'div',
 	                { className: 'rcs-week' },
 	                _react2['default'].createElement(
-	                    'ul',
-	                    { className: 'clearfix week-list',
-	                        onTouchStart: this.onTouchStartHandler.bind(this),
-	                        onTouchMove: this.onTouchMoveHandler.bind(this),
-	                        onTouchEnd: this.onTouchEndHandler.bind(this)
-	                    },
-	                    days.map(function (item, index) {
-	                        return _react2['default'].createElement(
-	                            'li',
-	                            { key: index, className: 'week-item' + (_this3.state.activeDate.getDay() === item.date.getDay() ? ' active' : '') + (today === item.date.toLocaleDateString() ? ' today' : ''), onClick: function () {
-	                                    return _this3.setActiveDate(item.date);
-	                                } },
-	                            _react2['default'].createElement(
-	                                'div',
-	                                { className: 'week-label' },
-	                                _this3.state.weekPrefix + _this3.props.weekLabel[item.date.getDay()]
-	                            ),
-	                            _react2['default'].createElement(
-	                                'div',
-	                                { className: 'day-num' },
+	                    'div',
+	                    { className: 'rsc-week-inner' },
+	                    _react2['default'].createElement(
+	                        'ul',
+	                        { style: this.renderStyle(),
+	                            className: 'clearfix week-list ' + this.state.swipeClass,
+	                            onTouchStart: this.onTouchStartHandler.bind(this),
+	                            onTouchMove: this.onTouchMoveHandler.bind(this),
+	                            onTouchEnd: this.onTouchEndHandler.bind(this)
+	                        },
+	                        days.map(function (item, index) {
+	                            return _react2['default'].createElement(
+	                                'li',
+	                                { key: index,
+	                                    className: 'week-item' + (_this4.state.activeDate.getDay() === item.date.getDay() ? ' active' : '') + (today === item.date.toLocaleDateString() ? ' today' : ''),
+	                                    'data-date': item.date,
+	                                    onClick: function () {
+	                                        return _this4.setActiveDate(item.date);
+	                                    } },
 	                                _react2['default'].createElement(
 	                                    'div',
-	                                    { className: 'inner' },
+	                                    { className: 'week-label' },
+	                                    _this4.state.weekPrefix + _this4.props.weekLabel[item.date.getDay()]
+	                                ),
+	                                _react2['default'].createElement(
+	                                    'div',
+	                                    { className: 'day-num' },
 	                                    _react2['default'].createElement(
 	                                        'div',
-	                                        { className: 'num' },
-	                                        today === item.date.toLocaleDateString() && _this3.state.isMobile ? '今' : item.date.getDate()
+	                                        { className: 'inner' },
+	                                        _react2['default'].createElement(
+	                                            'div',
+	                                            { className: 'num' },
+	                                            today === item.date.toLocaleDateString() && _this4.state.isMobile ? '今' : item.date.getDate()
+	                                        )
 	                                    )
-	                                )
-	                            ),
-	                            _react2['default'].createElement('div', { className: 'day-label ' + (item.mark ? 'mark' : '') })
-	                        );
-	                    })
+	                                ),
+	                                _react2['default'].createElement('div', { className: 'day-label ' + (item.mark ? 'mark' : '') })
+	                            );
+	                        })
+	                    )
 	                )
 	            ),
 	            _react2['default'].createElement(
@@ -434,7 +507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	// module
-	exports.push([module.id, "@font-face {\n  font-family: 'iconfont';\n  src: url(" + __webpack_require__(7) + ");\n  src: url(" + __webpack_require__(7) + "?#iefix) format('embedded-opentype'), url(" + __webpack_require__(8) + ") format('woff'), url(" + __webpack_require__(9) + ") format('truetype'), url(" + __webpack_require__(10) + "#iconfont) format('svg');\n}\n.rcs-iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -webkit-text-stroke-width: 0.2px;\n  -moz-osx-font-smoothing: grayscale;\n}\n.clearfix:before,\n.clearfix:after {\n  display: table;\n  content: \" \";\n}\n.clearfix:after {\n  clear: both;\n}\n.rcs-panel .right {\n  float: right;\n  position: relative;\n}\n.rcs-panel .left {\n  float: left;\n}\n.rcs-panel .rcs-option {\n  padding: 0 5.702%;\n}\n.rcs-panel .rcs-day {\n  position: relative;\n}\n.rcs-panel .rcs-day .prev,\n.rcs-panel .rcs-day .next {\n  display: inline-block;\n  margin-left: .2rem;\n  margin-right: .2rem;\n  width: 1.5rem;\n  height: 1.5rem;\n  border-radius: 1.5rem;\n  border: 1px solid #ececec;\n  background: #fff;\n  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.13);\n  line-height: 1.5rem;\n  text-align: center;\n  color: #999;\n  cursor: pointer;\n}\n.rcs-panel .rcs-day .start,\n.rcs-panel .rcs-day .end {\n  font-size: 16px;\n}\n.rcs-panel .rcs-day .prev {\n  float: left;\n}\n.rcs-panel .rcs-day .prev:before {\n  content: \"\\E660\";\n}\n.rcs-panel .rcs-day .next {\n  float: right;\n}\n.rcs-panel .rcs-day .next:before {\n  content: \"\\E65F\";\n}\n.rcs-panel .rcs-date {\n  font-size: 14px;\n}\n.rcs-panel .rcs-week {\n  padding: 0 5.702%;\n}\n.rcs-panel .rcs-week .week-list {\n  list-style: none;\n  padding-left: 0;\n  margin: 0 -5.702%;\n  border-bottom: 1px solid #ececec;\n}\n.rcs-panel .rcs-week .week-list .week-item {\n  float: left;\n  width: 14.285%;\n  text-align: center;\n  border: 1px solid transparent;\n  box-sizing: border-box;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rcs-panel .rcs-week .week-list .week-item .week-label {\n  font-size: 12px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num {\n  position: relative;\n  padding-top: 0.5rem;\n  padding-bottom: 0;\n  font-size: 14px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num .inner {\n  position: relative;\n  background: #fff;\n  border-radius: 2rem;\n  width: 2rem;\n  height: 2rem;\n  margin: auto;\n  border: 1px solid transparent;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num .inner .num {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  margin-top: -6px;\n  width: 100%;\n  text-align: center;\n  font-style: normal;\n  font-size: 12px;\n  line-height: 12px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-label {\n  height: 0.5rem;\n  position: relative;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-label.mark:after {\n  content: ' ';\n  position: absolute;\n  width: 3px;\n  height: 3px;\n  border-radius: 3px;\n  margin-left: -1.5px;\n  top: 0.25rem;\n  margin-top: -1.5px;\n  background-color: #FF6633;\n}\n.rcs-panel .rcs-week .week-list .week-item.active {\n  background: #fff;\n}\n.rcs-mobile .rcs-day {\n  display: none;\n}\n.rcs-mobile .rcs-week .week-list {\n  margin-top: 15px;\n  padding-bottom: 1.2rem;\n}\n.rcs-mobile .rcs-week .week-list .week-item .week-label {\n  color: #777;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .week-label {\n  font-weight: bold;\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .day-num {\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .day-num .inner {\n  background: rgba(255, 102, 51, 0.2);\n}\n.rcs-mobile .rcs-week .week-list .week-item.today .week-label {\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.today .day-num {\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.today .day-num .inner {\n  border-color: #FF6633;\n}\n.rcs-pc .rcs-week {\n  margin-top: .6rem;\n}\n.rcs-pc .rcs-week .week-list {\n  box-shadow: inset 0 -10px 10px -10px rgba(0, 0, 0, 0.1);\n}\n.rcs-pc .rcs-week .week-list .week-item {\n  padding-top: .5rem;\n  cursor: pointer;\n}\n.rcs-pc .rcs-week .week-list .week-item .week-label {\n  color: #666;\n}\n.rcs-pc .rcs-week .week-list .week-item.active {\n  border-color: #ececec;\n  border-bottom-color: #fff;\n  box-shadow: 0 -2px 6px 0 rgba(0, 0, 0, 0.07), -5px 0 6px -5px rgba(0, 0, 0, 0.07), 6px 0 5px -5px rgba(0, 0, 0, 0.07);\n  margin-bottom: -1px;\n  padding-bottom: 1px;\n}\n.rcs-pc .rcs-week .week-list .week-item.today .day-num {\n  color: #FF6633;\n}\n.rcs-pc .rcs-week .week-list .week-item.today .day-num .inner {\n  background: rgba(255, 102, 51, 0.2);\n}\n", ""]);
+	exports.push([module.id, "@font-face {\n  font-family: 'iconfont';\n  src: url(" + __webpack_require__(7) + ");\n  src: url(" + __webpack_require__(7) + "?#iefix) format('embedded-opentype'), url(" + __webpack_require__(8) + ") format('woff'), url(" + __webpack_require__(9) + ") format('truetype'), url(" + __webpack_require__(10) + "#iconfont) format('svg');\n}\nhtml {\n  -ms-touch-action: manipulation;\n  touch-action: manipulation;\n}\n.rcs-iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -webkit-text-stroke-width: 0.2px;\n  -moz-osx-font-smoothing: grayscale;\n}\n.clearfix:before,\n.clearfix:after {\n  display: table;\n  content: \" \";\n}\n.clearfix:after {\n  clear: both;\n}\n.rcs-panel .right {\n  float: right;\n  position: relative;\n}\n.rcs-panel .left {\n  float: left;\n}\n.rcs-panel .rcs-option {\n  padding: 0 5.702%;\n}\n.rcs-panel .rcs-day {\n  position: relative;\n}\n.rcs-panel .rcs-day .prev,\n.rcs-panel .rcs-day .next {\n  display: inline-block;\n  margin-left: .2rem;\n  margin-right: .2rem;\n  width: 1.5rem;\n  height: 1.5rem;\n  border-radius: 1.5rem;\n  border: 1px solid #ececec;\n  background: #fff;\n  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.13);\n  line-height: 1.5rem;\n  text-align: center;\n  color: #999;\n  cursor: pointer;\n}\n.rcs-panel .rcs-day .start,\n.rcs-panel .rcs-day .end {\n  font-size: 16px;\n}\n.rcs-panel .rcs-day .prev {\n  float: left;\n}\n.rcs-panel .rcs-day .prev:before {\n  content: \"\\E660\";\n}\n.rcs-panel .rcs-day .next {\n  float: right;\n}\n.rcs-panel .rcs-day .next:before {\n  content: \"\\E65F\";\n}\n.rcs-panel .rcs-date {\n  font-size: 14px;\n}\n.rcs-panel .rcs-week {\n  padding: 0 5.702%;\n  overflow-x: hidden;\n}\n.rcs-panel .rcs-week .rsc-week-inner {\n  margin: 0 -5.702%;\n}\n.rcs-panel .rcs-week .week-list {\n  list-style: none;\n  padding-left: 0;\n  white-space: nowrap;\n  font-size: 0;\n}\n.rcs-panel .rcs-week .week-list .week-item {\n  display: inline-block;\n  width: 14.285%;\n  text-align: center;\n  border: 1px solid transparent;\n  box-sizing: border-box;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rcs-panel .rcs-week .week-list .week-item .week-label {\n  font-size: 12px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num {\n  position: relative;\n  padding-top: 0.5rem;\n  padding-bottom: 0;\n  font-size: 14px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num .inner {\n  position: relative;\n  background: #fff;\n  border-radius: 2rem;\n  width: 2rem;\n  height: 2rem;\n  margin: auto;\n  border: 1px solid transparent;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-num .inner .num {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  margin-top: -6px;\n  width: 100%;\n  text-align: center;\n  font-style: normal;\n  font-size: 12px;\n  line-height: 12px;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-label {\n  height: 0.5rem;\n  width: 100%;\n  position: relative;\n}\n.rcs-panel .rcs-week .week-list .week-item .day-label.mark:after {\n  content: ' ';\n  position: absolute;\n  width: 3px;\n  height: 3px;\n  border-radius: 3px;\n  margin-left: -1.5px;\n  top: 0.25rem;\n  margin-top: -1.5px;\n  background-color: #FF6633;\n}\n.rcs-panel .rcs-week .week-list .week-item.active {\n  background: #fff;\n}\n.rcs-mobile .rcs-day {\n  display: none;\n}\n.rcs-mobile .rcs-week {\n  border-bottom: 1px solid #ececec;\n}\n.rcs-mobile .rcs-week .week-list {\n  margin-top: 15px;\n  padding-bottom: 1.2rem;\n  margin-left: -100%;\n  padding-right: 100%;\n}\n.rcs-mobile .rcs-week .week-list .week-item .week-label {\n  color: #777;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .week-label {\n  font-weight: bold;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .day-num {\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.active .day-num .inner {\n  background: rgba(255, 102, 51, 0.2);\n}\n.rcs-mobile .rcs-week .week-list .week-item.today .day-num {\n  color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list .week-item.today .day-num .inner {\n  border-color: #FF6633;\n}\n.rcs-mobile .rcs-week .week-list.rc-calender-show-week-touch-end-right {\n  margin-left: 0;\n  padding-right: 0;\n  transition: padding-right 500ms ease-out, margin-left 500ms ease-out;\n}\n.rcs-mobile .rcs-week .week-list.rc-calender-show-week-touch-end-left {\n  margin-left: -200%;\n  padding-right: 200%;\n  transition: margin-left 500ms ease-out, padding-right 500ms ease-out;\n}\n.rcs-pc .rcs-week {\n  margin-top: .6rem;\n}\n.rcs-pc .rcs-week .week-list {\n  box-shadow: inset 0 -10px 10px -10px rgba(0, 0, 0, 0.1);\n  border-bottom: 1px solid #ececec;\n}\n.rcs-pc .rcs-week .week-list .week-item {\n  padding-top: .5rem;\n  cursor: pointer;\n}\n.rcs-pc .rcs-week .week-list .week-item .week-label {\n  color: #666;\n}\n.rcs-pc .rcs-week .week-list .week-item.active {\n  border-color: #ececec;\n  border-bottom-color: #fff;\n  box-shadow: 0 -2px 6px 0 rgba(0, 0, 0, 0.07), -5px 0 6px -5px rgba(0, 0, 0, 0.07), 6px 0 5px -5px rgba(0, 0, 0, 0.07);\n  margin-bottom: -1px;\n  padding-bottom: 1px;\n}\n.rcs-pc .rcs-week .week-list .week-item.today .day-num {\n  color: #FF6633;\n}\n.rcs-pc .rcs-week .week-list .week-item.today .day-num .inner {\n  background: rgba(255, 102, 51, 0.2);\n}\n", ""]);
 	
 	// exports
 
