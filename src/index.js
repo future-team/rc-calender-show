@@ -96,8 +96,8 @@ export default class CalenderShow extends Component {
     getWeekRange() {
         const days = this.getWeekDays()
         const weekRange = {
-            weekStart: days[0]['date'],
-            weekEnd: days[days.length-1]['date']
+            weekStart: days[7]['date'],
+            weekEnd: days[13]['date']
         }
         return weekRange
     }
